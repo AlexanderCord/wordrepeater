@@ -1,5 +1,7 @@
 
-./tutorial/*
+
+tutorial
+
 # Logs
 logs
 *.log
