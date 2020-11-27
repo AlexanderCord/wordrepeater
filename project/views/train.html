@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% endblock %}
+
+
+{% block content %}
+
+  <div class="container">
+
+    <h1>{{ title }}</h1>
+    <div class="d-none" id="message"></div>
+    <br>
+
+      <h3><span id="word_original">{{word.original}}</span></h3>
+      <button class="btn btn-default btn-train" word-id="{{word.id}}" train-result="yes">Know</button>
+      <button class="btn btn-default btn-train" word-id="{{word.id}}" train-result="no">Don't know</button>
+    
+    <br>
+
+    <br>
+    
+    <p><a href="/">To the main page</a></p>
+    <script type="text/javascript" src="/js/train.js"></script>
+  </div>
+
+
+{% endblock %}

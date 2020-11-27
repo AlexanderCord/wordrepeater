@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+
+    <h1>{{ title }}</h1>
+
+    <br>
+
+    <ul>
+    {% for row in log %}
+      <li>{{row.added|date('Y-m-d H:i:s')}} <a href="/vocabulary/word/{{row.word_id._id|safe}}">{{row.word_id.original|safe}}</a> - {% if row.train_result %}yes{% else %}no{% endif %}</li>
+    {% endfor %}
+    </ul>
+ 
+    <br>    
+    <p><a href="/">To the main page</a></p>
+
+  </div>
+
+{% endblock %}
+

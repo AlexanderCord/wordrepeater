@@ -30,6 +30,10 @@ router.post('/words', function(req, res) {
 router.get('/word/:id', function(req, res) {
   var query = {"_id": req.params.id};
   Vocabulary.findOne(query, function(err, word){
+    if(err) {
+	res.render('error', {err:err});
+	return;
+    } 
     console.log(word)
     res.render(
       'word',

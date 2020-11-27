@@ -36,10 +36,15 @@ app.use('/users', usersRouter);
 // mongoose config
 require('./database');
   
+// Vocabulary UI
 var wordsRouter = require('./routes/words');
 app.use('/vocabulary', wordsRouter); 
 
+// Training UI
+var trainRouter = require('./routes/train');
+app.use('/train', trainRouter); 
 
+     
   
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
