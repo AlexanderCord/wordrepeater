@@ -3,7 +3,7 @@ var router = express.Router();
 
 var mongoose = require('mongoose');
 var Vocabulary = mongoose.model('Vocabulary');
-
+var TrainLog = mongoose.model('TrainLog');
 
 router.get('/words', function(req, res) {
 
@@ -31,7 +31,7 @@ router.get('/word/:id', function(req, res) {
   var query = {"_id": req.params.id};
   Vocabulary.findOne(query, function(err, word){
     if(err) {
-	res.render('error', {err:err});
+	res.render('error', {error:err});
 	return;
     } 
     console.log(word)
@@ -47,6 +47,11 @@ router.put('/word/:id', function(req, res) {
   var update = {original : req.body.original , translation: req.body.translation};
   var options = {new: true};
   Vocabulary.findOneAndUpdate(query, update, options, function(err, word){
+    if(err) {
+	res.render('error', {error:err});
+	return;
+    } 
+
     console.log(word)
     res.render(
       'word',
@@ -56,10 +61,24 @@ router.put('/word/:id', function(req, res) {
 });
 
 router.delete('/word/:id', function(req, res) {
-  var query = {"_id": req.params.id};
+  var query = {"_id": req.params.id}
+
+
   Vocabulary.findOneAndRemove(query, function(err, word){
-    console.log(word)
-    res.redirect('/vocabulary/words');
+    console.log('removing word');
+    console.log(word);
+    if(err) {
+	res.render('error', {error:err});
+    } 
+    TrainLog.deleteMany({word_id: req.params.id }, function(err) {
+	if(err) {
+          res.render('error', {error:err});	  
+	}
+	console.log('removing log');
+	res.redirect('/vocabulary/words');
+    });
+    
+
   });
 });
 

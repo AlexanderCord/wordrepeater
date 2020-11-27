@@ -14,5 +14,6 @@ var TrainLog = new Schema(
 mongoose.model('Vocabulary', Vocabulary);
 mongoose.model('TrainLog', TrainLog);
 
-mongoose.connect('mongodb://localhost/node-wordrepeater');
+mongoose.set('useFindAndModify', false);
+mongoose.connect('mongodb://localhost/node-wordrepeater', { useFindAndModify: false });
 

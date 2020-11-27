@@ -28,17 +28,6 @@ router.get('/start', function(req, res) {
 
 });
 
-router.get('/log', function(req, res) {
-
-  TrainLog.find().populate('word_id').sort({added: -1}).exec( function(err, log){
-    var util = require('util');
-    console.log(util.inspect(log, false, null));
-    res.render(
-      'log',
-      {title : 'WordRepeater - Training Log', log : log}
-    );
-  });
-});
 
 router.get('/next', function(req, res) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
@@ -70,51 +59,20 @@ router.get('/next', function(req, res) {
 });
 
 
+router.get('/log', function(req, res) {
 
-
-
-
-
-
-router.post('/words', function(req, res) {
-  new Vocabulary({original : req.body.original, translation: req.body.translation})
-  .save(function(err, word) {
-    console.log(word)
-    res.redirect('/vocabulary/words');
-  });
-});
-
-router.get('/word/:id', function(req, res) {
-  var query = {"_id": req.params.id};
-  Vocabulary.findOne(query, function(err, word){
-    console.log(word)
+  TrainLog.find().populate('word_id').sort({added: -1}).exec( function(err, log){
+    var util = require('util');
+    console.log(util.inspect(log, false, null));
     res.render(
-      'word',
-      {title : 'WordRepeater - Vocabulary - ' + word.original, word : word}
+      'log',
+      {title : 'WordRepeater - Training Log', log : log}
     );
   });
 });
 
-router.put('/word/:id', function(req, res) {
-  var query = {"_id": req.params.id};
-  var update = {original : req.body.original , translation: req.body.translation};
-  var options = {new: true};
-  Vocabulary.findOneAndUpdate(query, update, options, function(err, word){
-    console.log(word)
-    res.render(
-      'word',
-      {title : 'WordRepeater - Vocabulary - ' + word.original, word : word}
-    );
-  });
-});
 
-router.delete('/word/:id', function(req, res) {
-  var query = {"_id": req.params.id};
-  Vocabulary.findOneAndRemove(query, function(err, word){
-    console.log(word)
-    res.redirect('/vocabulary/words');
-  });
-});
+
 
 module.exports = router;
 
