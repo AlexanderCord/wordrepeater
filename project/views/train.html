@@ -9,11 +9,12 @@
 
     <h1>{{ title }}</h1>
     <div class="d-none" id="message"></div>
-    <br>
 
-      <h3><span id="word_original">{{word.original}}</span></h3>
-      <button class="btn btn-default btn-train" word-id="{{word.id}}" train-result="yes">Know</button>
-      <button class="btn btn-default btn-train" word-id="{{word.id}}" train-result="no">Don't know</button>
+      <h3><span id="word-original">{{word.original}}</span></h3>
+      <a class="btn btn-light word-translation" word-translation="{{word.translation}}">Reveal</a> 
+      <br>
+      <button class="btn btn-success btn-train" word-id="{{word.id}}" train-result="yes">Know</button>
+      <button class="btn btn-danger btn-train" word-id="{{word.id}}" train-result="no">Don't know</button>
     
     <br>
 

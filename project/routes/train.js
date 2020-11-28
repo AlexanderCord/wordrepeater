@@ -65,7 +65,7 @@ router.get('/next', function(req, res) {
         } 
         // Tada! random user
         console.log(word) 
-        res.json({'result' : {'word_original': word.original, 'word_id' : word.id  }});
+        res.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
       })
   })
   
