@@ -7,7 +7,7 @@ var TrainLog = mongoose.model('TrainLog');
 
 router.get('/words', function(req, res) {
 
-  Vocabulary.find(function(err, words){
+  Vocabulary.find().sort({original: 1}).exec(function(err, words){
     if(err) {
       res.render('error', {error:err});
     }
