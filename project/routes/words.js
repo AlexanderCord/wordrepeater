@@ -8,6 +8,9 @@ var TrainLog = mongoose.model('TrainLog');
 router.get('/words', function(req, res) {
 
   Vocabulary.find(function(err, words){
+    if(err) {
+      res.render('error', {error:err});
+    }
     console.log(words)
     res.render(
       'words',
@@ -22,6 +25,9 @@ router.get('/words', function(req, res) {
 router.post('/words', function(req, res) {
   new Vocabulary({original : req.body.original, translation: req.body.translation})
   .save(function(err, word) {
+    if(err) {
+      res.render('error', {error:err});
+    }
     console.log(word)
     res.redirect('/vocabulary/words');
   });
@@ -65,11 +71,11 @@ router.delete('/word/:id', function(req, res) {
 
 
   Vocabulary.findOneAndRemove(query, function(err, word){
+    if(err) {
+      res.render('error', {error:err});
+    }
     console.log('removing word');
     console.log(word);
-    if(err) {
-	res.render('error', {error:err});
-    } 
     TrainLog.deleteMany({word_id: req.params.id }, function(err) {
 	if(err) {
           res.render('error', {error:err});	  
