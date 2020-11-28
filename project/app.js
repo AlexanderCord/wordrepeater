@@ -4,10 +4,29 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
  
+      
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+// authorization
+const basicAuth = require('express-basic-auth')
+var config = require('./config'); 
+basicUsers = config.basic.users;
+console.log(basicUsers);
+app.use(basicAuth({
+  users: basicUsers, 
+  unauthorizedResponse: getUnauthorizedResponse,
+  challenge: true,
+}));
+
+function getUnauthorizedResponse(req) {
+  return req.auth
+    ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
+    : 'No credentials provided'
+}
+
 
 // view engine setup
 

@@ -17,5 +17,7 @@ mongoose.model('TrainLog', TrainLog);
 mongoose.set('useFindAndModify', false);
 var config = require('./config');
 
-mongoose.connect("mongodb://"+config.mongo.user+":"+encodeURIComponent(config.mongo.password)+"@"+config.mongo.host+":"+config.mongo.port+"/"+config.mongo.db+"?authSource=admin", { useFindAndModify: false,  useNewUrlParser: true });
+mongoConnect = "mongodb://"+config.mongo.user+":"+encodeURIComponent(config.mongo.password)+"@"+config.mongo.host+":"+config.mongo.port+"/"+config.mongo.db+"?authSource=admin";
+//console.log(mongoConnect);
+mongoose.connect(mongoConnect, { useFindAndModify: false,  useNewUrlParser: true });
 

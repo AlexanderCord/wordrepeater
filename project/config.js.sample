@@ -1,9 +1,13 @@
 var config = {};
+config.mongo = {};
 config.mongo.user = '';
 config.mongo.password = '';
 config.mongo.db = '';
 config.mongo.port = '';
 config.mongo.host = '';
+
+config.basic = {};
+config.basic.users = {'user' : 'pass'};
 
 module.exports = config;
 
