@@ -1,0 +1,9 @@
+var config = {};
+config.mongo.user = '';
+config.mongo.password = '';
+config.mongo.db = '';
+config.mongo.port = '';
+config.mongo.host = '';
+
+module.exports = config;
+
