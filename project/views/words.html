@@ -26,15 +26,17 @@
 
     <h2>Vocabulary</h2>
 
-    <ul>
+    Filter: <input type="text" id="word-filter"><a href="#" class="btn btn-light" id="word-filter-reset">Reset</a>
+    <br><br>
+    <ul id="word-list">
     {% for word in words %}
-      <li><a href="/vocabulary/word/{{word.id}}">{{word.original}}</a>{% if word.translation %} - {{word.translation}}{% endif %}</li>
+      <li><p><a href="/vocabulary/word/{{word.id}}">{{word.original}}</a>{% if word.translation %} - {{word.translation}}{% endif %}</p></li>
     {% endfor %}
     </ul>
  
     <br>    
     <p><a href="/">To the main page</a></p>
-
+    <script src="/js/vocabulary.js"></script>
   </div>
 
 {% endblock %}
