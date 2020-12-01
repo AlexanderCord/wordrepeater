@@ -14,11 +14,11 @@ var app = express();
 const basicAuth = require('express-basic-auth')
 var config = require('./config'); 
 basicUsers = config.basic.users;
-console.log(basicUsers);
+//console.log(basicUsers);
 app.use(basicAuth({
   users: basicUsers, 
   unauthorizedResponse: getUnauthorizedResponse,
-  challenge: true,
+  challenge: true, 
 }));
 
 function getUnauthorizedResponse(req) {

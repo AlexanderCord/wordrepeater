@@ -75,7 +75,7 @@ router.get('/words', function(req, res) {
     //console.log(words)
     res.render(
       'words',
-      {title : 'WordRepeater - Vocabulary', words : words, train_stats: train_stats}
+      {title : 'Vocabulary', words : words, train_stats: train_stats}
     );
   });
   //res.send('Just a test');
@@ -104,7 +104,7 @@ router.get('/word/:id', function(req, res) {
     console.log(word)
     res.render(
       'word',
-      {title : 'WordRepeater - Vocabulary - ' + word.original, word : word}
+      {title : 'Vocabulary - ' + word.original, word : word}
     );
   });
 });
@@ -122,7 +122,7 @@ router.put('/word/:id', function(req, res) {
     console.log(word)
     res.render(
       'word',
-      {title : 'WordRepeater - Vocabulary - ' + word.original, word : word}
+      {title : 'Vocabulary - ' + word.original, word : word}
     );
   });
 });

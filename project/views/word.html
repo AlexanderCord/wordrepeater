@@ -14,18 +14,20 @@
 
     <form method="post" action="/vocabulary/word/{{word.id}}?_method=PUT">
       <div class="form-group">
-        <label>English</label>
+        <label for="original">English</label>
         <input type="text" name="original" class="form-control" value="{{word.original}}" required>
-        <label>Translation</label>
+      </div>
+      <div class="form-group">
+        <label for="translation">Translation</label>
         <input type="text" name="translation" class="form-control" value="{{word.translation}}" required>
       </div>
-      <button type="submit" class="btn btn-default">Update</button>
+      <button type="submit" class="btn btn-success">Update</button>
     </form>
 
     <br>
 
     <form method="post" action="/vocabulary/word/{{word.id}}?_method=DELETE" class="form-inline" id="delete-word-form">
-      <button type="submit" class="btn btn-default" id="delete-word-button">Delete</button>
+      <button type="submit" class="btn btn-danger" id="delete-word-button">Delete</button>
     </form>
     <br>
   </div>

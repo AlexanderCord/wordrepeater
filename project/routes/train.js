@@ -26,7 +26,7 @@ router.get('/start', function(req, res) {
         console.log(word) 
         res.render(
           'train',
-          {title: 'WordRepeater - Training', word: word}
+          {title: 'Training', word: word}
         );
       })
   })
@@ -83,7 +83,7 @@ router.get('/log', function(req, res) {
     console.log(util.inspect(log, false, null));
     res.render(
       'log',
-      {title : 'WordRepeater - Training Log', log : log}
+      {title : 'Training Log', log : log}
     );
   });
 });
