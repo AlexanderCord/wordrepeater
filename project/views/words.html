@@ -31,7 +31,13 @@
     <br><br>
     <ul id="word-list">
     {% for word in words %}
-      <li><p><a href="/vocabulary/word/{{word.id}}">{{word.original}}</a>{% if word.translation %} - {{word.translation}}{% endif %}</p></li>
+      <li><p>
+      <a href="/vocabulary/word/{{word.id}}">{{word.original}}</a>{% if word.translation %} - {{word.translation}}{% endif %}
+      {%if train_stats[word.id]%} <span class="label {% if train_stats[word.id].success_rate > 90 %}label-success{% else %}label-warning{% endif %}">{{train_stats[word.id].success_rate}}% (Yes: {{train_stats[word.id].train_result_yes}} / No: {{train_stats[word.id].train_result_no}})</span> 
+      {% else %}
+      <span class="label label-default">Haven't trained</span>
+      {% endif %}
+      </p></li>
     {% endfor %}
     </ul>
  
