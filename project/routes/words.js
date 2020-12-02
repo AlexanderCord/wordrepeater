@@ -90,7 +90,7 @@ router.post('/words', function(req, res) {
       res.render('error', {error:err});
     }
     console.log(word)
-    res.redirect('/vocabulary/words');
+    res.redirect('/vocabulary/words?added');
   });
 });
 
