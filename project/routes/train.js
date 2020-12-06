@@ -35,7 +35,7 @@ router.get('/start', function(req, res) {
 });
 
 
-router.get('/next', function(req, res) {
+router.get('/next', function(req, response) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   var ObjectId = require('mongodb').ObjectID;
   new TrainLog({
@@ -44,31 +44,108 @@ router.get('/next', function(req, res) {
       })
     .save(function(err, word) {
       if(err) {
-        res.render('error', {error:err});
+        response.render('error', {error:err});
       }
       console.log('train log added')
     });
+  var train_stats = [];
+  var stat_count = 0;
+  TrainLog.aggregate([
+    {
+      $group: {
+        "_id": {
+          "word_id": "$word_id"
+        },
+        train_result_yes: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: [
+                  "$train_result",
+                  true
+                ]
+              },
+              then: 1,
+              else: 0
+            }
+          }
+        },
+        train_result_no: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: [
+                  "$train_result",
+                  false
+                ]
+              },
+              then: 1,
+              else: 0
+            }
+          }
+        }
+      },
+    },
 
-  // Get the count of all users
-  Vocabulary.count().exec(function (err, count) {
-    if(err) {
-      res.render('error', {error:err});
-    }
-    // Get a random entry
-    var random = Math.floor(Math.random() * count)
-
-    // Again query all users but only fetch one offset by our random #
-    Vocabulary.findOne().skip(random).exec(
-      function (err, word) {
-        if(err) {
-          res.render('error', {error:err});
+    {
+      $project : {
+        _id : "$_id",
+         ratio : {
+          $divide : [ "$train_result_yes", { $add: [ "$train_result_yes", "$train_result_no" ] } ]
         } 
-        // Tada! random user
-        console.log(word) 
-        res.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
-      })
-  })
+      } 
+    },
+    {
+      $match: {
+        ratio: { '$lte': 0.9 }
+      }
+    },
+    
+    {
+      $sort: {"ratio": 1 }
+    },
+  ]).exec( function(err, res) {
+    if(err){
+      console.log("Error:" + err);
+      response.render('error', {error:err});
+    }
+   
+    if(res.length > 0) {
+      for(i=0; i<res.length; i++) {
+        stat_count ++;
+        train_stats[ i ] = {}
+        train_stats[ i ].word_id = res[i]._id.word_id
+        if(res[i].train_result_yes + res[i].train_result_no > 0){
+          train_stats[ i ].success_rate = Math.round(100*res[i].train_result_yes/(res[i].train_result_yes + res[i].train_result_no));
+        }
+        
+      }
+    }
+
+    // @todo refactor callbacks
+    // Loading random word from those where user haven't trained yet or success rate is low
+    min = 0;
+    max = stat_count>0 ? stat_count - 1: 0;
+    rnd = Math.floor(Math.random() * (max - min + 1)) + min;
+    new_word_id = train_stats[ rnd ].word_id;
   
+    Vocabulary.count().exec(function (err, count) {
+      if(err) {
+        console.log("Error" + err);
+        response.render('error', {error:err});
+      }
+
+      Vocabulary.findOne({"_id": new_word_id})/*.skip(random)*/.exec(
+        function (err, word) {
+          if(err) {
+            console.log("Error:" + err);
+            response.render('error', {error:err});
+          } 
+
+          response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation, 'train_stats': train_stats[rnd]  }});
+        })
+    })
+  });
 
 });
 
