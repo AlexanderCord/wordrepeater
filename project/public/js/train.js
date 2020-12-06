@@ -5,7 +5,7 @@ $(document).ready(function() {
         word_original = $('#word-original').text();
         $('#word-original').text(word_original + ' - ' + translation);
         message_box = $('#message')        
-        message_box.text('Translation will show for 5 seconds. Then next word will show');
+        message_box.text('Translation will show for 5 seconds. Then next word will show').show();
         message_box.fadeIn('slow', function() {
             message_box.delay(5000).fadeOut();
         });
@@ -21,11 +21,17 @@ $(document).ready(function() {
     $(".btn-train").click(function() {
         word_id = $(this).attr('word-id');
         train_result = $(this).attr('train-result');
-	message_box = $('#message')
+        training_mode = $('input[name="training-mode"]:checked').val();
+        if(!['default', 'new', 'all'].includes(training_mode)) {
+          training_mode = 'default';
+        }
+        
+        
+        message_box = $('#message')
         console.log(' word word_id ' + word_id + ' result ' + train_result);
 
         $.ajax({
-            url: '/train/next',
+            url: '/train/'+training_mode,
             data: {
                 'word_id': word_id,
                 'train_result': train_result

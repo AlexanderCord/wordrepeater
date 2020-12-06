@@ -34,8 +34,8 @@ router.get('/start', function(req, res) {
 
 });
 
-
-router.get('/next', function(req, response) {
+// Default training mode - Words that you've scored with 90% or less
+router.get('/default', function(req, response) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   var ObjectId = require('mongodb').ObjectID;
   new TrainLog({
@@ -126,9 +126,10 @@ router.get('/next', function(req, response) {
     // Loading random word from those where user haven't trained yet or success rate is low
     min = 0;
     max = stat_count>0 ? stat_count - 1: 0;
+    console.log("Max" + stat_count);
     rnd = Math.floor(Math.random() * (max - min + 1)) + min;
     new_word_id = train_stats[ rnd ].word_id;
-  
+    console.log('Training mode = default');
     Vocabulary.count().exec(function (err, count) {
       if(err) {
         console.log("Error" + err);
@@ -149,6 +150,112 @@ router.get('/next', function(req, response) {
 
 });
 
+
+
+
+// Training mode NEW - New words (zero score)
+// @todo update word's score in a cache table to avoid memory overload
+router.get('/new', function(req, response) {
+  console.log( req.query.word_id + '=' + req.query.train_result );  
+  var ObjectId = require('mongodb').ObjectID;
+  new TrainLog({
+      word_id : ObjectId(req.query.word_id),
+      train_result: req.query.train_result == "yes" ? true : false
+      })
+    .save(function(err, word) {
+      if(err) {
+        response.render('error', {error:err});
+      }
+      console.log('train log added')
+    });
+  var train_stats = [];
+  console.log('Training mode: new')
+  var stat_count = 0;
+  var trained = [];
+  TrainLog.distinct('word_id', function(err, trained_temp) {
+    if(err) {
+      console.log("Error" + err);
+      response.render('error', {error:err});
+    }
+
+    for(var i = 0; i<trained_temp.length;i++){
+      trained[i] = trained_temp[i].word_id;
+    }
+    console.log("Trained: " + i);
+    console.log(trained_temp);
+
+  });
+
+  console.log(trained);
+  
+  Vocabulary.find({"_id": { "$nin" : trained } }).count().exec(function (err, count) {
+    if(err) {
+      console.log("Error" + err);
+      response.render('error', {error:err});
+    }
+    // Get a random entry
+    var random = Math.floor(Math.random() * count)
+
+    Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec(
+      function (err, word) {
+        if(err) {
+          console.log("Error:" + err);
+          response.render('error', {error:err});
+        } 
+          response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
+      })
+  });
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+// Training mode all - All words (random order)
+router.get('/all', function(req, res) {
+  console.log( req.query.word_id + '=' + req.query.train_result );  
+  var ObjectId = require('mongodb').ObjectID;
+  new TrainLog({
+      word_id : ObjectId(req.query.word_id),
+      train_result: req.query.train_result == "yes" ? true : false
+      })
+    .save(function(err, word) {
+      if(err) {
+        res.render('error', {error:err});
+      }
+      console.log('train log added')
+    });
+  console.log('Training mode = all');
+  // Get the count of all users
+  Vocabulary.count().exec(function (err, count) {
+    if(err) {
+      res.render('error', {error:err});
+    }
+    // Get a random entry
+    var random = Math.floor(Math.random() * count)
+
+    // Again query all users but only fetch one offset by our random #
+    Vocabulary.findOne().skip(random).exec(
+      function (err, word) {
+        if(err) {
+          res.render('error', {error:err});
+        } 
+        // Tada! random user
+        console.log(word) 
+        res.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
+      })
+  })
+  
+
+});
 
 router.get('/log', function(req, res) {
 
