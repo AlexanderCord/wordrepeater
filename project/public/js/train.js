@@ -1,4 +1,6 @@
 $(document).ready(function() {
+
+
     $('.word-translation').click(function() {
         $('.word-translation').hide();
         translation = $(this).attr('word-translation');
@@ -63,5 +65,19 @@ $(document).ready(function() {
         });
         return false;
     });
+    
+    var training_mode_selected = $.cookie('training-mode'); // Retrieve cookie value
+    if(training_mode_selected != null) {
+        $('input[name="training-mode"][value="' + training_mode_selected + '"]').attr('checked', true); // Check matching button
+    }      
+    $('input[name="training-mode"]').click(function() {
+        $.cookie('training-mode', $(this).val(), {expires: 30}); // Save cookie
+    });
+            
+
+    window.setTimeout(function() {
+      $('.btn-train[train-result=skip]').click();
+    }, 100);
+
 });
 

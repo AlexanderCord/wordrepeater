@@ -4,43 +4,22 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var Vocabulary = mongoose.model('Vocabulary');
 var TrainLog = mongoose.model('TrainLog');
+var ObjectId = require('mongodb').ObjectID;
 
 
-router.get('/start', function(req, res) {
-  // Get the count of all users
-  Vocabulary.count().exec(function (err, count) {
-    if(err) {
-      res.render('error', {error:err});
-    }
+/*
+******************
+Train UI
+******************
+*/
 
-    // Get a random entry
-    var random = Math.floor(Math.random() * count)
-
-    // Again query all users but only fetch one offset by our random #
-    Vocabulary.findOne().skip(random).exec(
-      function (err, word) {
-        if(err) {
-          res.render('error', {error:err});
-        }
-        // Tada! random user
-        console.log(word) 
-        res.render(
-          'train',
-          {title: 'Training', word: word}
-        );
-      })
-  })
-
-
-});
-
-// Default training mode - Words that you've scored with 90% or less
-router.get('/default', function(req, response) {
-  console.log( req.query.word_id + '=' + req.query.train_result );  
-  var ObjectId = require('mongodb').ObjectID;
-  new TrainLog({
-      word_id : ObjectId(req.query.word_id),
-      train_result: req.query.train_result == "yes" ? true : false
+function saveTrainResult(response, word_id, train_result) {
+  if(train_result == "skip") {
+    console.log("Train log skipped");
+  } else {
+    new TrainLog({
+      word_id : ObjectId(word_id),
+      train_result: train_result == "yes" ? true : false
       })
     .save(function(err, word) {
       if(err) {
@@ -48,6 +27,24 @@ router.get('/default', function(req, response) {
       }
       console.log('train log added')
     });
+  }
+}
+
+
+router.get('/start', function(req, res) {
+  res.render('train',
+    {title: 'Training', word: []}
+  );
+
+
+});
+
+// Default training mode - Words that you've scored with 90% or less
+router.get('/default', function(req, response) {
+  console.log( req.query.word_id + '=' + req.query.train_result );  
+  saveTrainResult(response, req.query.word_id, req.query.train_result);
+  
+  
   var train_stats = [];
   var stat_count = 0;
   TrainLog.aggregate([
@@ -157,17 +154,8 @@ router.get('/default', function(req, response) {
 // @todo update word's score in a cache table to avoid memory overload
 router.get('/new', function(req, response) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
-  var ObjectId = require('mongodb').ObjectID;
-  new TrainLog({
-      word_id : ObjectId(req.query.word_id),
-      train_result: req.query.train_result == "yes" ? true : false
-      })
-    .save(function(err, word) {
-      if(err) {
-        response.render('error', {error:err});
-      }
-      console.log('train log added')
-    });
+  saveTrainResult(response, req.query.word_id, req.query.train_result);
+
   var train_stats = [];
   console.log('Training mode: new')
   var stat_count = 0;
@@ -210,34 +198,16 @@ router.get('/new', function(req, response) {
 
 
 
-
-
-
-
-
-
-
-
-
 // Training mode all - All words (random order)
-router.get('/all', function(req, res) {
+router.get('/all', function(req, response) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
-  var ObjectId = require('mongodb').ObjectID;
-  new TrainLog({
-      word_id : ObjectId(req.query.word_id),
-      train_result: req.query.train_result == "yes" ? true : false
-      })
-    .save(function(err, word) {
-      if(err) {
-        res.render('error', {error:err});
-      }
-      console.log('train log added')
-    });
+  saveTrainResult(response, req.query.word_id, req.query.train_result);
+
   console.log('Training mode = all');
   // Get the count of all users
   Vocabulary.count().exec(function (err, count) {
     if(err) {
-      res.render('error', {error:err});
+      response.render('error', {error:err});
     }
     // Get a random entry
     var random = Math.floor(Math.random() * count)
@@ -246,17 +216,25 @@ router.get('/all', function(req, res) {
     Vocabulary.findOne().skip(random).exec(
       function (err, word) {
         if(err) {
-          res.render('error', {error:err});
+          response.render('error', {error:err});
         } 
         // Tada! random user
         console.log(word) 
-        res.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
+        response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
       })
   })
   
 
 });
 
+
+
+
+/*
+******************
+Log UI
+******************
+*/
 router.get('/log', function(req, res) {
 
   TrainLog.find().populate('word_id').sort({added: -1}).exec( function(err, log){
