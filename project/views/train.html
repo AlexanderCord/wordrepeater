@@ -12,7 +12,10 @@
     
     <div id="message"></div>
 
-      <h4><span id="word-original" class="bg-light2">{{word.original}}</span></h4>
+      <h4><span id="word-original" class="bg-light2">{{word.original}}</span> </h4>
+      <span id="train-stats" class="badge badge-info small">train stats</span>
+      
+      <br><br>
       <button class="btn btn-success btn-train" word-id="{{word.id}}" train-result="yes">Know</button>
       <button class="btn btn-danger btn-train" word-id="{{word.id}}" train-result="no">Don't know</button>
       <button class="btn btn-light btn-train" word-id="{{word.id}}" train-result="skip">Skip</button>

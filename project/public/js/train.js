@@ -49,6 +49,7 @@ $(document).ready(function() {
                 	btn = $(this);
                 	btn.attr('word-id', data.result.word_id);
                     });
+                    loadWordStats(data.result.word_id);
                     //message_box.text('Next word');
 
 
@@ -65,6 +66,40 @@ $(document).ready(function() {
         });
         return false;
     });
+    
+    function loadWordStats(word_id) {
+        console.log(word_id);
+        $.ajax({
+            url: '/train/stats',
+            data: {
+                'word_id': word_id,
+            },
+            dataType: 'json',
+            success: function(data) {
+                if (data.result) {
+                
+                    console.log("Result:" + data.result);
+                    if(data.result.train_stats[0]) {
+                      row = data.result.train_stats[0];
+                      $('#train-stats').text("" +  Math.round(row.ratio * 100)/100 + "% (Yes: " + row.train_result_yes + ", No: " + row.train_result_no + ")");
+                      $('#train-stats').attr('class', row.ratio > 0.9 ? 'badge badge-success' : 'badge badge-warning');
+                    }
+                    //message_box.text('Next word');
+
+
+                } else {
+                    console.log("Error has occured during request");
+                    message_box.text('Error has occured during request');
+                    message_box.fadeIn('slow', function() {
+                        message_box.delay(5000).fadeOut();
+                    });
+
+                }
+
+            }
+        });
+        
+    }
     
     var training_mode_selected = $.cookie('training-mode'); // Retrieve cookie value
     if(training_mode_selected != null) {

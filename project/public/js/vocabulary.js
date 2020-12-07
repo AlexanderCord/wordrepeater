@@ -29,6 +29,10 @@ $(document).ready(function() {
     }
   });
   
+  function filterByWord(word) {
+    $('#word-filter').val(word);
+    $('#word-filter').keyup();
+  }
 
   function filterByFirstCharacter(char) {
     $("#word-list li").show().filter(function() {
@@ -48,6 +52,8 @@ $(document).ready(function() {
         if(param == "letter" && val.length == 1) {
           filterByFirstCharacter(val);
 
+        } else if(param == "word" && val.length > 0 ) {
+          filterByWord(val);
         }
         
         console.log(param  + '=' + val);
