@@ -13,20 +13,27 @@ Train UI
 ******************
 */
 
-function saveTrainResult(response, word_id, train_result) {
+async function saveTrainResult(response, word_id, train_result) {
   if(train_result == "skip") {
     console.log("Train log skipped");
   } else {
-    new TrainLog({
-      word_id : ObjectId(word_id),
-      train_result: train_result == "yes" ? true : false
-      })
-    .save(function(err, word) {
-      if(err) {
+  
+    try {
+      await new TrainLog({
+        word_id : ObjectId(word_id),
+        train_result: train_result == "yes" ? true : false
+      }).save();
+      console.log('train log added');
+
+    } catch(err) {
+      // @todo refactor when everything is one-style
+      if(response) {
         response.render('error', {error:err});
+      } else {
+        console.log('test exception escalation');
+        throw err;
       }
-      console.log('train log added')
-    });
+    }
   }
 }
 
@@ -145,6 +152,51 @@ router.get('/default', function(req, response) {
 // Training mode NEW - New words (zero score)
 // @todo update word's score in a cache table to avoid memory overload, or using Mongo's lookup
 
+router.get('/new', async (req, response) => {
+  console.log( req.query.word_id + '=' + req.query.train_result );  
+  try {
+    // Saving training result for this world
+    await saveTrainResult(false, req.query.word_id, req.query.train_result);
+
+    console.log('Training mode: new')
+
+    // Loading word_ids for already trained words
+    let train_stats = [];
+    let stat_count = 0;
+    
+    let trained_temp = await TrainLog.distinct('word_id').exec()
+    let trained = [];
+    for(var i = 0; i< trained_temp.length;i++){
+      trained[i] = ObjectId(trained_temp[i]);
+    }
+    console.log("Trained: " + i);
+    console.log(trained_temp);
+    console.log('Trained first' + trained);
+    
+    // Loading count of words, excluding word_ids of trained ones
+    let count = await Vocabulary.find({"_id": { "$nin" : trained } }).count().exec();
+    
+    // Get a random entry
+    let random = Math.floor(Math.random() * count);
+    console.log('random' + random);
+    console.log('Trained second' + trained[0]);
+
+    // Loading a radom word    
+    word = await Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec();
+    
+    // Sending JSON output
+    response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
+
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+
+});
+
+
+
+/*
 router.get('/new', function(req, response) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   saveTrainResult(response, req.query.word_id, req.query.train_result);
@@ -162,23 +214,23 @@ router.get('/new', function(req, response) {
     console.log(trained_temp);
     return trained;
 
-  }).then(async trained => {
+  }).then(trained => {
     console.log('Trained first' + trained);
     random = 0;
-    await Vocabulary.find({"_id": { "$nin" : trained } }).count().exec()
-    .then( count => {
-      // Get a random entry
-      random = Math.floor(Math.random() * count);
-    });
+    return Vocabulary.find({"_id": { "$nin" : trained } }).count().exec();
+    
+  }).then( count => {
+    // Get a random entry
+    random = Math.floor(Math.random() * count);
+    
     return [trained, random];
-  }).then( async ([trained, random]) => {  
+  }).then( ([trained, random]) => {  
     console.log('random' + random);
     console.log('Trained seond' + trained[0]);
     
-    await Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec()
-    .then(async word => {
-      response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
-    });
+    return Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec()
+  }).then(word => {
+    response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
   }).catch(err => {
     if(err) {
       response.render('error', {error:err});
@@ -187,7 +239,7 @@ router.get('/new', function(req, response) {
 
 });
 
-
+*/
 
 // Training mode all - All words (random order)
 router.get('/all', function(req, response) {
@@ -202,12 +254,11 @@ router.get('/all', function(req, response) {
     var random = Math.floor(Math.random() * count)
 
     // Again query all words but only fetch one offset by our random #
-    Vocabulary.findOne().skip(random).exec()
-    .then( word => {
-      // Tada! random word
-      console.log(word) 
-      response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
-    });
+    return Vocabulary.findOne().skip(random).exec();
+  }).then( word => {
+    // Tada! random word
+    console.log(word) 
+    response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
   }).catch(err => {
     if(err) {
       response.render('error', {error:err});
