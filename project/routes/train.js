@@ -155,7 +155,7 @@ router.get('/default', function(req, response) {
 router.get('/new', async (req, response) => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   try {
-    // Saving training result for this world
+    // Saving training result for this word
     await saveTrainResult(false, req.query.word_id, req.query.train_result);
 
     console.log('Training mode: new')
