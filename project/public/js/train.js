@@ -81,8 +81,12 @@ $(document).ready(function() {
                     console.log("Result:" + data.result);
                     if(data.result.train_stats[0]) {
                       row = data.result.train_stats[0];
-                      $('#train-stats').text("" +  Math.round(row.ratio * 100)/100 + "% (Yes: " + row.train_result_yes + ", No: " + row.train_result_no + ")");
+                      $('#train-stats').text("" +  Math.round(row.ratio * 100) + "% (Yes: " + row.train_result_yes + ", No: " + row.train_result_no + ")");
                       $('#train-stats').attr('class', row.ratio > 0.9 ? 'badge badge-success' : 'badge badge-warning');
+                    } else {
+                      $('#train-stats').text("Haven't trained")
+                      $('#train-stats').attr('class', 'badge badge-secondary');
+                    
                     }
                     //message_box.text('Next word');
 

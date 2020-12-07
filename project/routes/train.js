@@ -143,7 +143,7 @@ router.get('/default', function(req, response) {
 
 
 // Training mode NEW - New words (zero score)
-// @todo update word's score in a cache table to avoid memory overload
+// @todo update word's score in a cache table to avoid memory overload, or using Mongo's lookup
 
 router.get('/new', function(req, response) {
   console.log( req.query.word_id + '=' + req.query.train_result );  
@@ -154,31 +154,29 @@ router.get('/new', function(req, response) {
   var stat_count = 0;
   TrainLog.distinct('word_id').exec()
   .then(trained_temp => {
-    let trained = [];
-    for(var i = 0; i<trained_temp.length;i++){
-      trained[i] = trained_temp[i].word_id;
+    trained = [];
+    for(var i = 0; i< trained_temp.length;i++){
+      trained[i] = ObjectId(trained_temp[i]);
     }
     console.log("Trained: " + i);
     console.log(trained_temp);
     return trained;
 
-  }).then(trained => {
-
-    console.log('Trained first' + trained[0]);
-    var random = 0;
-    Vocabulary.find({"_id": { "$nin" : trained } }).count().exec()
+  }).then(async trained => {
+    console.log('Trained first' + trained);
+    random = 0;
+    await Vocabulary.find({"_id": { "$nin" : trained } }).count().exec()
     .then( count => {
       // Get a random entry
       random = Math.floor(Math.random() * count);
-      return random;  
     });
     return [trained, random];
-  }).then( ([trained, random]) => {  
+  }).then( async ([trained, random]) => {  
     console.log('random' + random);
     console.log('Trained seond' + trained[0]);
     
-    Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec()
-    .then(word => {
+    await Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec()
+    .then(async word => {
       response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
     });
   }).catch(err => {
