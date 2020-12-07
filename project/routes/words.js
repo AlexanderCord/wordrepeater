@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var Vocabulary = mongoose.model('Vocabulary');
 var TrainLog = mongoose.model('TrainLog');
 
-router.get('/words', function(req, res) {
+router.get('/words', function(req, response) {
 
   var train_stats = [];
   TrainLog.aggregate([
@@ -47,10 +47,7 @@ router.get('/words', function(req, res) {
     {
       $sort: {"train_result_yes": -1 }
     },
-  ]).exec( function(err, res) {
-    if(err){
-      res.render('error', {error:err});
-    }
+  ]).exec().then(function(res) {
   
     if(res.length > 0) {
       for(i=0; i<res.length; i++) {
@@ -65,88 +62,97 @@ router.get('/words', function(req, res) {
     }
   
     console.log(train_stats);
-  });
-
-
-  Vocabulary.find().sort({original: 1}).exec(function(err, words){
+  }).then( res => {
+    Vocabulary.find().sort({original: 1}).exec()
+    .then( words => {
+      //console.log(words)
+      response.render(
+        'words',
+        {title : 'Vocabulary', words : words, train_stats: train_stats}
+      );
+    }) 
+  }).catch(err => {
     if(err) {
-      res.render('error', {error:err});
+      response.render('error', {error:err});
     }
-    //console.log(words)
-    res.render(
-      'words',
-      {title : 'Vocabulary', words : words, train_stats: train_stats}
-    );
+    
   });
-  //res.send('Just a test');
-  //res.render('api', { title: 'Vocabulary API ' + Math.random()*10 });
 
 });
 
 router.post('/words', function(req, res) {
   new Vocabulary({original : req.body.original, translation: req.body.translation})
-  .save(function(err, word) {
+  .save().then(word => {
+    console.log(word)
+    res.redirect('/vocabulary/words?added');
+  })
+  .catch(err => {
     if(err) {
       res.render('error', {error:err});
     }
-    console.log(word)
-    res.redirect('/vocabulary/words?added');
+    
   });
+  
 });
 
 router.get('/word/:id', function(req, res) {
   var query = {"_id": req.params.id};
-  Vocabulary.findOne(query, function(err, word){
-    if(err) {
-	res.render('error', {error:err});
-	return;
-    } 
+  Vocabulary.findOne(query).exec()
+  .then(word => {
     console.log(word)
     res.render(
       'word',
       {title : 'Vocabulary - ' + word.original, word : word}
     );
+  }).catch(err => {
+    if(err) {
+      res.render('error', {error:err});
+    }
+    
   });
+  
 });
 
 router.put('/word/:id', function(req, res) {
   var query = {"_id": req.params.id};
   var update = {original : req.body.original , translation: req.body.translation};
   var options = {new: true};
-  Vocabulary.findOneAndUpdate(query, update, options, function(err, word){
-    if(err) {
-	res.render('error', {error:err});
-	return;
-    } 
-
+  Vocabulary.findOneAndUpdate(query, update, options)
+  .then(word => {
     console.log(word)
     res.render(
       'word',
       {title : 'Vocabulary - ' + word.original, word : word}
     );
+  }).catch(err => {
+    if(err) {
+      res.render('error', {error:err});
+    }
+    
   });
+  
 });
 
 router.delete('/word/:id', function(req, res) {
   var query = {"_id": req.params.id}
 
 
-  Vocabulary.findOneAndRemove(query, function(err, word){
+  Vocabulary.findOneAndRemove(query)
+  .then( word => {
+    console.log('removing word');
+    console.log(word);
+  }).then( () => { 
+    TrainLog.deleteMany({word_id: req.params.id })
+    .exec().then( () => {
+      console.log('removed log');
+      res.redirect('/vocabulary/words');
+    })
+  }).catch(err => {
     if(err) {
       res.render('error', {error:err});
     }
-    console.log('removing word');
-    console.log(word);
-    TrainLog.deleteMany({word_id: req.params.id }, function(err) {
-	if(err) {
-          res.render('error', {error:err});	  
-	}
-	console.log('removing log');
-	res.redirect('/vocabulary/words');
-    });
     
-
-  });
+  });  
 });
 
 module.exports = router;
