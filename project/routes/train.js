@@ -151,7 +151,7 @@ router.get('/default', function(req, response) {
 
 // Training mode NEW - New words (zero score)
 // @todo update word's score in a cache table to avoid memory overload, or using Mongo's lookup
-
+// @todo JSON errors render in JSON format => client-side update
 router.get('/new', async (req, response) => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   try {
