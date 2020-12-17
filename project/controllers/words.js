@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var Vocabulary = mongoose.model('Vocabulary');
 var TrainLog = mongoose.model('TrainLog');
 
-router.get('/words', function(req, response) {
+const words = function(req, response) {
 
   var train_stats = [];
   TrainLog.aggregate([
@@ -78,9 +78,9 @@ router.get('/words', function(req, response) {
     
   });
 
-});
+}
 
-router.post('/words', function(req, res) {
+const addWord = function(req, res) {
   new Vocabulary({original : req.body.original, translation: req.body.translation})
   .save().then(word => {
     console.log(word)
@@ -93,9 +93,9 @@ router.post('/words', function(req, res) {
     
   });
   
-});
+}
 
-router.get('/word/:id', function(req, res) {
+const word = function(req, res) {
   var query = {"_id": req.params.id};
   Vocabulary.findOne(query).exec()
   .then(word => {
@@ -111,9 +111,9 @@ router.get('/word/:id', function(req, res) {
     
   });
   
-});
+}
 
-router.put('/word/:id', function(req, res) {
+const updateWord = function(req, res) {
   var query = {"_id": req.params.id};
   var update = {original : req.body.original , translation: req.body.translation};
   var options = {new: true};
@@ -131,9 +131,9 @@ router.put('/word/:id', function(req, res) {
     
   });
   
-});
+}
 
-router.delete('/word/:id', function(req, res) {
+const deleteWord = function(req, res) {
   var query = {"_id": req.params.id}
 
 
@@ -153,7 +153,7 @@ router.delete('/word/:id', function(req, res) {
     }
     
   });  
-});
+}
 
-module.exports = router;
+module.exports = {words, word, addWord, updateWord, deleteWord};
 
