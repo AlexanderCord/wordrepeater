@@ -15,7 +15,7 @@ mongoose.model('Vocabulary', Vocabulary);
 mongoose.model('TrainLog', TrainLog);
 
 mongoose.set('useFindAndModify', false);
-var config = require('./config');
+var config = require('../config');
 
 mongoConnect = "mongodb://"+config.mongo.user+":"+encodeURIComponent(config.mongo.password)+"@"+config.mongo.host+":"+config.mongo.port+"/"+config.mongo.db+"?authSource=admin";
 //console.log(mongoConnect);

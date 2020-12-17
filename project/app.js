@@ -42,18 +42,18 @@ var swig = new swig.Swig({cache: false});
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 //app.set('view engine', 'jade');
-
+  
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // mongoose config
-require('./database');
+require('./models/database');
   
 // Vocabulary UI
 var wordsRouter = require('./routes/words');

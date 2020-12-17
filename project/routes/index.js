@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
+//import { index } from '../controllers/index' 
+const index = require('../controllers/index')
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'WordRepeater' });
-});
+router.get('/', index);
 
 module.exports = router;
