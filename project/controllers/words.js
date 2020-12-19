@@ -61,7 +61,7 @@ const words = async (req, response) => {
       }
     }
   
-    console.log(train_stats);
+    //console.log(train_stats);
     
     let words = await Vocabulary.find().sort({original: 1}).exec();
     
