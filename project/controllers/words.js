@@ -5,10 +5,10 @@ var mongoose = require('mongoose');
 var Vocabulary = mongoose.model('Vocabulary');
 var TrainLog = mongoose.model('TrainLog');
 
-const words = function(req, response) {
-
-  var train_stats = [];
-  TrainLog.aggregate([
+const words = async (req, response) => {
+  try { 
+    let train_stats = [];
+    let res = await TrainLog.aggregate([
     {
       $group: {
         "_id": {
@@ -47,7 +47,7 @@ const words = function(req, response) {
     {
       $sort: {"train_result_yes": -1 }
     },
-  ]).exec().then(function(res) {
+    ]).exec();
   
     if(res.length > 0) {
       for(i=0; i<res.length; i++) {
@@ -62,97 +62,85 @@ const words = function(req, response) {
     }
   
     console.log(train_stats);
-  }).then( res => {
-    Vocabulary.find().sort({original: 1}).exec()
-    .then( words => {
-      //console.log(words)
-      response.render(
-        'words',
-        {title : 'Vocabulary', words : words, train_stats: train_stats}
-      );
-    }) 
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
     
-  });
-
-}
-
-const addWord = function(req, res) {
-  new Vocabulary({original : req.body.original, translation: req.body.translation})
-  .save().then(word => {
-    console.log(word)
-    res.redirect('/vocabulary/words?added');
-  })
-  .catch(err => {
-    if(err) {
-      res.render('error', {error:err});
-    }
+    let words = await Vocabulary.find().sort({original: 1}).exec();
     
-  });
+    //console.log(words)
+    response.render(
+      'words',
+      {title : 'Vocabulary', words : words, train_stats: train_stats}
+    );
   
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
 }
 
-const word = function(req, res) {
-  var query = {"_id": req.params.id};
-  Vocabulary.findOne(query).exec()
-  .then(word => {
+const addWord = async (req, response) => {
+  try { 
+    let word = await new Vocabulary({original : req.body.original, translation: req.body.translation})
+    .save();
+  
     console.log(word)
-    res.render(
+    response.redirect('/vocabulary/words?added');
+
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+    
+}
+
+const word = async (req, response) => {
+  try { 
+    let query = {"_id": req.params.id};
+    let word = await Vocabulary.findOne(query).exec();
+    console.log(word)
+    response.render(
       'word',
       {title : 'Vocabulary - ' + word.original, word : word}
     );
-  }).catch(err => {
-    if(err) {
-      res.render('error', {error:err});
-    }
-    
-  });
   
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }  
 }
 
-const updateWord = function(req, res) {
-  var query = {"_id": req.params.id};
-  var update = {original : req.body.original , translation: req.body.translation};
-  var options = {new: true};
-  Vocabulary.findOneAndUpdate(query, update, options)
-  .then(word => {
+const updateWord = async (req, response) => {
+  try {
+    let query = {"_id": req.params.id};
+    let update = {original : req.body.original , translation: req.body.translation};
+    let options = {new: true};
+    let word = await Vocabulary.findOneAndUpdate(query, update, options).exec();
     console.log(word)
-    res.render(
+    response .render(
       'word',
       {title : 'Vocabulary - ' + word.original, word : word}
     );
-  }).catch(err => {
-    if(err) {
-      res.render('error', {error:err});
-    }
-    
-  });
   
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }  
 }
 
-const deleteWord = function(req, res) {
-  var query = {"_id": req.params.id}
-
-
-  Vocabulary.findOneAndRemove(query)
-  .then( word => {
+const deleteWord = async (req, response) => {
+  try {
+    let query = {"_id": req.params.id}
+    let word = await Vocabulary.findOneAndRemove(query).exec();
     console.log('removing word');
     console.log(word);
-  }).then( () => { 
-    TrainLog.deleteMany({word_id: req.params.id })
-    .exec().then( () => {
-      console.log('removed log');
-      res.redirect('/vocabulary/words');
-    })
-  }).catch(err => {
-    if(err) {
-      res.render('error', {error:err});
-    }
+
+    await TrainLog.deleteMany({word_id: req.params.id }).exec();
     
-  });  
+    console.log('removed log');
+    response.redirect('/vocabulary/words');
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }  
 }
 
 module.exports = {words, word, addWord, updateWord, deleteWord};
