@@ -46,13 +46,14 @@ const startTraining = function(req, res) {
 }
 
 // Default training mode - Words that you've scored with 90% or less
-const defaultTraining = function(req, response) {
+const defaultTraining = async (req, response) => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
-  saveTrainResult(response, req.query.word_id, req.query.train_result);
+  try {
+    await saveTrainResult(response, req.query.word_id, req.query.train_result);
   
-  var train_stats = [];
-  var stat_count = 0;
-  TrainLog.aggregate([
+    let train_stats = [];
+    let stat_count = 0;
+    res = await TrainLog.aggregate([
     {
       $group: {
         "_id": {
@@ -106,8 +107,8 @@ const defaultTraining = function(req, response) {
     {
       $sort: {"ratio": 1 }
     },
-  ]).exec().then(res => {
-   
+    ]).exec();
+  
     if(res.length > 0) {
       for(i=0; i<res.length; i++) {
         stat_count ++;
@@ -128,20 +129,17 @@ const defaultTraining = function(req, response) {
     rnd = Math.floor(Math.random() * (max - min + 1)) + min;
     new_word_id = train_stats[ rnd ].word_id;
     console.log('Training mode = default');
-    return [rnd, new_word_id];
-  }).then(([rnd, new_word_id]) => {
+
     console.log('New word id' + new_word_id);
     console.log('rnd' + rnd);
-    Vocabulary.findOne({ "_id": new_word_id }).exec()
-    .then(word => {
-      console.log('word' + word);
-      response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation, 'train_stats': train_stats[rnd]  }});
-    });
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
-  });
+    word = await Vocabulary.findOne({ "_id": new_word_id }).exec();
+    console.log('word' + word);
+    response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation, 'train_stats': train_stats[rnd]  }});
+
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
 
 }
 
@@ -194,28 +192,29 @@ const newWordsTraining = async (req, response) => {
 }
 
 // Training mode all - All words (random order)
-const allWordsTraining = function(req, response) {
-  console.log( req.query.word_id + '=' + req.query.train_result );  
-  saveTrainResult(response, req.query.word_id, req.query.train_result);
+const allWordsTraining = async (req, response) => {
+  try {
+    console.log( req.query.word_id + '=' + req.query.train_result );  
+    await saveTrainResult(response, req.query.word_id, req.query.train_result);
 
-  console.log('Training mode = all');
-  // Get the count of all words
-  Vocabulary.count().exec()
-  .then( count=> {
+    console.log('Training mode = all');
+    // Get the count of all words
+    count = await Vocabulary.count().exec();
     // Get a random entry
     var random = Math.floor(Math.random() * count)
 
     // Again query all words but only fetch one offset by our random #
-    return Vocabulary.findOne().skip(random).exec();
-  }).then( word => {
+    word = await Vocabulary.findOne().skip(random).exec();
     // Tada! random word
     console.log(word) 
     response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
-  });
+  
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+  
+  
 }
 
 
@@ -226,78 +225,81 @@ const allWordsTraining = function(req, response) {
 Log UI
 ******************
 */
-const logPage = function(req, response) {
-
-  TrainLog.find().populate('word_id').sort({added: -1}).exec()
-  .then( log =>{
-    var util = require('util');
+const logPage = async (req, response) => {
+  try {
+    log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
+    
+    const util = require('util');
     console.log(util.inspect(log, false, null));
     response.render(
       'log',
       {title : 'Training Log', log : log}
     );
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
-  });
+
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+
 
 }
 
 
-const logFilter = function(req, response) {
-  filter_date = req.query.date;
-  console.log(filter_date);
-  var moment = require('moment');
+const logFilter = async (req, response) => {
+  try {
+    filter_date = req.query.date;
+    console.log(filter_date);
+    const moment = require('moment');
   
-  filter_date_from = moment(filter_date, "YYYY-MM-DD").utc();
-  filter_date_to = moment(filter_date, "YYYY-MM-DD").add('days', 1).utc();
-  console.log(filter_date_from);
-  console.log(filter_date_to);
+    filter_date_from = moment(filter_date, "YYYY-MM-DD").utc();
+    filter_date_to = moment(filter_date, "YYYY-MM-DD").add('days', 1).utc();
+    console.log(filter_date_from);
+    console.log(filter_date_to);
 
-  TrainLog.find({
-	added: {"$gte" : filter_date_from, "$lt" : filter_date_to}
-  }).populate('word_id').sort({added: -1}).exec()
-  .then( log => {
-    var util = require('util');
+    log = await TrainLog.find({
+      added: {"$gte" : filter_date_from, "$lt" : filter_date_to}
+      }).populate('word_id').sort({added: -1}).exec();
+      
+    const util = require('util');
     console.log(util.inspect(log, false, null));
     response.json({
 	'result' : {'log' : log}
     });
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
-  });
+
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+
 
 }
 
 
 
-const allLog = function(req, response) {
+const allLog = async (req, response) => {
   
-
-  TrainLog.find().populate('word_id').sort({added: -1}).exec()
-  .then( log =>{
-    var util = require('util');
+  try {
+    log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
+    const util = require('util');
     console.log(util.inspect(log, false, null));
     response.json({
 	'result' : {'log' : log}
     });
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
-  });
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+
   
 }
 
-const wordStats = function(req, response) {
-  console.log( req.query.word_id  );  
-  console.log('Train stats for one word');  
-  var train_stats = [];
-  var stat_count = 0;
-  TrainLog.aggregate([
+const wordStats = async (req, response) => {
+  try{ 
+    console.log( req.query.word_id  );  
+    console.log('Train stats for one word');  
+    let train_stats = [];
+    let stat_count = 0;
+    let res = await TrainLog.aggregate([
     {
       $match: {
         word_id: ObjectId(req.query.word_id)
@@ -349,13 +351,15 @@ const wordStats = function(req, response) {
         } 
       } 
     },
-  ]).exec().then(res => {
+    ]).exec();
+  
     response.json({'result' : { 'train_stats': res  }});
-  }).catch(err => {
-    if(err) {
-      response.render('error', {error:err});
-    }
-  });
+
+  } catch(err) {
+    // Error handling
+    response.render('error', {error:err});
+  }
+
 
 }
 
