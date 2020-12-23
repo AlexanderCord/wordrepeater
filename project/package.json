@@ -27,5 +27,12 @@
     "nodemon": "^2.0.6",
     "request": "^2.88.2",
     "swig": "^1.4.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/http-errors": "^1.8.0",
+    "@types/method-override": "0.0.31",
+    "@types/morgan": "^1.9.2",
+    "@types/swig": "0.0.29"
   }
 }
