@@ -1,7 +1,7 @@
 const expect = require("chai").expect;
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const config = require('../config');
+const config = require('../dist/config');
 for (let u in config.basic.users) {
   var user = u;
   var pass = config.basic.users[user]
