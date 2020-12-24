@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "npm run build && npm run copy-files && npm run test && node ./bin/www",
+    "build" : "npm run build && npm run copy-files && npm run test", 
+    "start": "node ./bin/www",
     "test": "npx mocha --require mocha-steps --reporter spec",
     "build": "tsc",
     "copy-files": "copyfiles -u 1 'src/**/*.html' 'dist/'"
