@@ -5,15 +5,14 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
  
       
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+import {indexRouter} from './routes/index';
 
 var app = express();
 
 // authorization
 const basicAuth = require('express-basic-auth')
-var config = require('./config'); 
-basicUsers = config.basic.users;
+var config: any = require('./config'); 
+let basicUsers: any = config.basic.users;
 //console.log(basicUsers);
 app.use(basicAuth({
   users: basicUsers, 
@@ -21,7 +20,7 @@ app.use(basicAuth({
   challenge: true, 
 }));
 
-function getUnauthorizedResponse(req) {
+function getUnauthorizedResponse(req: any) {
   return req.auth
     ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
     : 'No credentials provided'
@@ -42,18 +41,17 @@ var swig = new swig.Swig({cache: false});
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 //app.set('view engine', 'jade');
-
+  
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/../public'))); 
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // mongoose config
-require('./database');
+require('./models/database');
   
 // Vocabulary UI
 var wordsRouter = require('./routes/words');
@@ -66,12 +64,12 @@ app.use('/train', trainRouter);
      
   
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function(req: any, res: any, next: any) {
   next(createError(404));
 });
   
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err: any, req: any, res:any, next: any) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
