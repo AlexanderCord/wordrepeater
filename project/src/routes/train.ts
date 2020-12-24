@@ -22,7 +22,7 @@ Train UI
 ******************
 */
 
-async function saveTrainResult(response, word_id, train_result) {
+async function saveTrainResult(response: any, word_id: any, train_result: any) {
   if(train_result == "skip") {
     console.log("Train log skipped");
   } else {

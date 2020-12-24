@@ -1,3 +1,4 @@
+import { Response, Request } from 'express'
 var express = require('express');
 var router = express.Router();
 
@@ -5,7 +6,7 @@ var mongoose = require('mongoose');
 var Vocabulary = mongoose.model('Vocabulary');
 var TrainLog = mongoose.model('TrainLog');
 
-const words = async (req, response) => {
+const words = async (req: Request, response: Response): Promise<void> => {
   try { 
     let train_stats = [];
     let res = await TrainLog.aggregate([
@@ -50,7 +51,7 @@ const words = async (req, response) => {
     ]).exec();
   
     if(res.length > 0) {
-      for(i=0; i<res.length; i++) {
+      for(let i=0; i<res.length; i++) {
         train_stats[ res[i]._id.word_id ] = res[i];
         
         train_stats[ res[i]._id.word_id ].success_rate = 0;
@@ -77,7 +78,7 @@ const words = async (req, response) => {
   }
 }
 
-const addWord = async (req, response) => {
+const addWord = async (req: Request, response: Response): Promise<void> => {
   try { 
     let word = await new Vocabulary({original : req.body.original, translation: req.body.translation})
     .save();
@@ -92,7 +93,7 @@ const addWord = async (req, response) => {
     
 }
 
-const word = async (req, response) => {
+const word = async (req: Request, response: Response): Promise<void> => {
   try { 
     let query = {"_id": req.params.id};
     let word = await Vocabulary.findOne(query).exec();
@@ -108,7 +109,7 @@ const word = async (req, response) => {
   }  
 }
 
-const updateWord = async (req, response) => {
+const updateWord = async (req: Request, response: Response): Promise<void> => {
   try {
     let query = {"_id": req.params.id};
     let update = {original : req.body.original , translation: req.body.translation};
@@ -126,7 +127,7 @@ const updateWord = async (req, response) => {
   }  
 }
 
-const deleteWord = async (req, response) => {
+const deleteWord = async (req: Request, response: Response): Promise<void> => {
   try {
     let query = {"_id": req.params.id}
     let word = await Vocabulary.findOneAndRemove(query).exec();

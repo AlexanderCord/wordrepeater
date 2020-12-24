@@ -1,23 +1,18 @@
-import express, { Express } from 'express'
-import mongoose from 'mongoose'
-import cors from 'cors'
-import bodyParser from 'body-parser';
-import  createError from 'http-errors';
-import  path from 'path';
-import  cookieParser from 'cookie-parser';
-import logger from 'morgan';
-import { NextFunction, Request, Response } from 'express';
-
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
  
       
-import indexRouter from './routes/index';
+import {indexRouter} from './routes/index';
 
+var app = express();
 
-/*
 // authorization
 const basicAuth = require('express-basic-auth')
-var config = require('./config'); 
-basicUsers = config.basic.users;
+var config: any = require('./config'); 
+let basicUsers: any = config.basic.users;
 //console.log(basicUsers);
 app.use(basicAuth({
   users: basicUsers, 
@@ -25,42 +20,25 @@ app.use(basicAuth({
   challenge: true, 
 }));
 
-function getUnauthorizedResponse(req) {
+function getUnauthorizedResponse(req: any) {
   return req.auth
     ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
     : 'No credentials provided'
 }
-*/
 
-// import todoRoutes from './routes'
 
-const app: Express = express()
-
-/*
-const PORT: string | number = process.env.PORT || 4000
-
-app.use(bodyParser.json())
-app.use(cors())
-//app.use(todoRoutes)
-
-const uri: string = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@localhost/${process.env.MONGO_DB}?retryWrites=true&authSource=admin`
-console.log(uri);
-const options = { useNewUrlParser: true, }
-mongoose.set('useFindAndModify', false)
-*/
-
-////////////
+// view engine setup
 
 app.set('views', path.join(__dirname, 'views'));
 
 
-import methodOverride from 'method-override';
+var methodOverride = require('method-override');
 app.use(methodOverride('_method'))
  
 
-import swig from 'swig';
-const swigEngine = new swig.Swig({cache: false});
-app.engine('html', swigEngine.renderFile);
+var swig = require('swig');
+var swig = new swig.Swig({cache: false});
+app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 //app.set('view engine', 'jade');
   
@@ -68,21 +46,30 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public'))); 
+app.use(express.static(path.join(__dirname, '/../public'))); 
 
 app.use('/', indexRouter);
 
 // mongoose config
-//require('./models/database');
+require('./models/database');
   
+// Vocabulary UI
+var wordsRouter = require('./routes/words');
+app.use('/vocabulary', wordsRouter); 
+
+// Training UI
+var trainRouter = require('./routes/train');
+app.use('/train', trainRouter); 
+
+     
   
 // catch 404 and forward to error handler
-app.use(function(err: Error, req: Request, res: Response, next: NextFunction) {
+app.use(function(req: any, res: any, next: any) {
   next(createError(404));
 });
   
 // error handler
-app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
+app.use(function(err: any, req: any, res:any, next: any) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -93,25 +80,3 @@ app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
 });
 
 module.exports = app;
-
-
-
-
-
-/*
-mongoose
-    .connect(uri, options)
-    .then(() =>
-        app.listen(PORT, () =>
-            console.log(`Server running on http://localhost:${PORT}`)
-        )
-    )
-    .catch((error) => {
-        throw error
-    })
-*/
-
-
-
-// view engine setup
-

@@ -1,3 +1,4 @@
+import { Response, Request } from 'express'
 var express = require('express');
 var router = express.Router();
 
@@ -13,7 +14,7 @@ Train UI
 ******************
 */
 
-async function saveTrainResult(response, word_id, train_result) {
+async function saveTrainResult(response: Response, word_id: any, train_result: any): Promise<void> {
   if(train_result == "skip") {
     console.log("Train log skipped");
   } else {
@@ -38,7 +39,7 @@ async function saveTrainResult(response, word_id, train_result) {
 }
 
 
-const startTraining = function(req, res) {
+const startTraining = async (req: Request, res: Response): Promise<void> => {
   res.render('train',
     {title: 'Training', word: []}
   );
@@ -46,14 +47,14 @@ const startTraining = function(req, res) {
 }
 
 // Default training mode - Words that you've scored with 90% or less
-const defaultTraining = async (req, response) => {
+const defaultTraining = async (req: Request, response: Response): Promise<void> => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   try {
     await saveTrainResult(response, req.query.word_id, req.query.train_result);
   
-    let train_stats = [];
+    let train_stats : {word_id: String, success_rate: Number}[] = [];
     let stat_count = 0;
-    res = await TrainLog.aggregate([
+    let res = await TrainLog.aggregate([
     {
       $group: {
         "_id": {
@@ -110,9 +111,9 @@ const defaultTraining = async (req, response) => {
     ]).exec();
   
     if(res.length > 0) {
-      for(i=0; i<res.length; i++) {
+      for(let i=0; i<res.length; i++) {
         stat_count ++;
-        train_stats[ i ] = {}
+        //train_stats[ i ] = {}
         train_stats[ i ].word_id = res[i]._id.word_id
         if(res[i].train_result_yes + res[i].train_result_no > 0){
           train_stats[ i ].success_rate = Math.round(100*res[i].train_result_yes/(res[i].train_result_yes + res[i].train_result_no));
@@ -123,16 +124,16 @@ const defaultTraining = async (req, response) => {
 
     // @todo refactor callbacks
     // Loading random word from those where user haven't trained yet or success rate is low
-    min = 0;
-    max = stat_count>0 ? stat_count - 1: 0;
+    let min = 0;
+    let max = stat_count>0 ? stat_count - 1: 0;
     console.log("Max" + stat_count);
-    rnd = Math.floor(Math.random() * (max - min + 1)) + min;
-    new_word_id = train_stats[ rnd ].word_id;
+    let rnd = Math.floor(Math.random() * (max - min + 1)) + min;
+    let new_word_id = train_stats[ rnd ].word_id;
     console.log('Training mode = default');
 
     console.log('New word id' + new_word_id);
     console.log('rnd' + rnd);
-    word = await Vocabulary.findOne({ "_id": new_word_id }).exec();
+    let word = await Vocabulary.findOne({ "_id": new_word_id }).exec();
     console.log('word' + word);
     response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation, 'train_stats': train_stats[rnd]  }});
 
@@ -149,11 +150,11 @@ const defaultTraining = async (req, response) => {
 // Training mode NEW - New words (zero score)
 // @todo update word's score in a cache table to avoid memory overload, or using Mongo's lookup
 // @todo JSON errors render in JSON format => client-side update
-const newWordsTraining = async (req, response) => {
+const newWordsTraining = async (req: Request, response: Response): Promise<void> => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   try {
     // Saving training result for this word
-    await saveTrainResult(false, req.query.word_id, req.query.train_result);
+    await saveTrainResult(response, req.query.word_id, req.query.train_result);
 
     console.log('Training mode: new')
 
@@ -163,10 +164,10 @@ const newWordsTraining = async (req, response) => {
     
     let trained_temp = await TrainLog.distinct('word_id').exec()
     let trained = [];
-    for(var i = 0; i< trained_temp.length;i++){
+    for(let i = 0; i< trained_temp.length;i++){
       trained[i] = ObjectId(trained_temp[i]);
     }
-    console.log("Trained: " + i);
+    console.log("Trained: " + trained_temp.length);
     console.log(trained_temp);
     console.log('Trained first' + trained);
     
@@ -179,7 +180,7 @@ const newWordsTraining = async (req, response) => {
     console.log('Trained second' + trained[0]);
 
     // Loading a radom word    
-    word = await Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec();
+    let word = await Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec();
     
     // Sending JSON output
     response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
@@ -192,19 +193,19 @@ const newWordsTraining = async (req, response) => {
 }
 
 // Training mode all - All words (random order)
-const allWordsTraining = async (req, response) => {
+const allWordsTraining = async (req: Request, response: Response): Promise<void> => {
   try {
     console.log( req.query.word_id + '=' + req.query.train_result );  
     await saveTrainResult(response, req.query.word_id, req.query.train_result);
 
     console.log('Training mode = all');
     // Get the count of all words
-    count = await Vocabulary.count().exec();
+    let count = await Vocabulary.count().exec();
     // Get a random entry
     var random = Math.floor(Math.random() * count)
 
     // Again query all words but only fetch one offset by our random #
-    word = await Vocabulary.findOne().skip(random).exec();
+    let word = await Vocabulary.findOne().skip(random).exec();
     // Tada! random word
     console.log(word) 
     response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
@@ -225,9 +226,9 @@ const allWordsTraining = async (req, response) => {
 Log UI
 ******************
 */
-const logPage = async (req, response) => {
+const logPage = async (req: Request, response: Response): Promise<void> => {
   try {
-    log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
+    let log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
     
     const util = require('util');
     console.log(util.inspect(log, false, null));
@@ -245,18 +246,18 @@ const logPage = async (req, response) => {
 }
 
 
-const logFilter = async (req, response) => {
+const logFilter = async (req: Request, response: Response): Promise<void> => {
   try {
-    filter_date = req.query.date;
+    let filter_date = req.query.date;
     console.log(filter_date);
     const moment = require('moment');
   
-    filter_date_from = moment(filter_date, "YYYY-MM-DD").utc();
-    filter_date_to = moment(filter_date, "YYYY-MM-DD").add('days', 1).utc();
+    let filter_date_from = moment(filter_date, "YYYY-MM-DD").utc();
+    let filter_date_to = moment(filter_date, "YYYY-MM-DD").add('days', 1).utc();
     console.log(filter_date_from);
     console.log(filter_date_to);
 
-    log = await TrainLog.find({
+    let log = await TrainLog.find({
       added: {"$gte" : filter_date_from, "$lt" : filter_date_to}
       }).populate('word_id').sort({added: -1}).exec();
       
@@ -276,10 +277,10 @@ const logFilter = async (req, response) => {
 
 
 
-const allLog = async (req, response) => {
+const allLog = async (req: Request, response: Response): Promise<void> => {
   
   try {
-    log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
+    let log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
     const util = require('util');
     console.log(util.inspect(log, false, null));
     response.json({
@@ -293,7 +294,7 @@ const allLog = async (req, response) => {
   
 }
 
-const wordStats = async (req, response) => {
+const wordStats = async (req: Request, response: Response): Promise<void> => {
   try{ 
     console.log( req.query.word_id  );  
     console.log('Train stats for one word');  
