@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build" : "npm run build && npm run copy-files && npm run test", 
+    "build" : "npm run tsc && npm run copy-files && npm run test", 
     "start": "node ./bin/www",
     "test": "npx mocha --require mocha-steps --reporter spec",
-    "build": "tsc",
+    "tsc": "tsc",
     "copy-files": "copyfiles -u 1 'src/**/*.html' 'dist/'"
   },
   "dependencies": {
