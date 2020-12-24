@@ -10,5 +10,8 @@
     
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/types/*.ts", "node_modules", ".vscode"]
+  "exclude": ["src/types/*.ts", "node_modules", ".vscode"],
+  "scripts": {
+     "copy-files": "copyfiles -u 1 src/**/*.html dist/",
+  },
 }

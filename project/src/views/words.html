@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+    <h1>{{ title }}</h1>
+    <p><a href="/">Home</a></p>
+
+    <br>
+
+    <form method="post" action="/vocabulary/words">
+      <div class="form-row">
+        <div class="col form-group">
+          <label for="original">English</label>
+          <input type="text" name="original" class="form-control" required>
+        </div>
+        <div class="col form-group">
+          <label for="translation">Translation</label>
+          <input type="text" name="translation" class="form-control" required>
+        </div>        
+        <div class="col">
+          <div style="position:absolute; bottom: 20px;">
+            <button type="submit" class="btn btn-success">Add</button>
+          </div>
+        </div>
+
+      </div>
+
+    </form>
+
+    <hr><br>
+
+    <h4>Words</h4>
+
+    Filter: <input type="text" id="word-filter"><a href="#" class="btn btn-light" id="word-filter-reset">Reset</a>
+    <br>
+    <div id="letter-filter"></div>
+    <br><br>
+    <ul id="word-list">
+    {% for word in words %}
+      <li>
+      <a href="/vocabulary/word/{{word.id}}">{{word.original}}</a>{% if word.translation %} - {{word.translation}}{% endif %}
+      {%if train_stats[word.id]%} <span class="badge {% if train_stats[word.id].success_rate > 90 %}badge-success{% else %}badge-warning{% endif %}">{{train_stats[word.id].success_rate}}% (Yes: {{train_stats[word.id].train_result_yes}} / No: {{train_stats[word.id].train_result_no}})</span> 
+      {% else %}
+      <span class="badge badge-secondary">Haven't trained</span>
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+ 
+    <br>    
+    <script src="/js/vocabulary.js"></script>
+  </div>
+
+{% endblock %}
+

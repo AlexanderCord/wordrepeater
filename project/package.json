@@ -33,6 +33,7 @@
     "@types/http-errors": "^1.8.0",
     "@types/method-override": "0.0.31",
     "@types/morgan": "^1.9.2",
-    "@types/swig": "0.0.29"
+    "@types/swig": "0.0.29",
+    "copyfiles": "^2.4.1"
   }
 }
