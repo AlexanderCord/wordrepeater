@@ -1,9 +1,10 @@
 $(document).ready(function() {
 
 
-    $('.word-translation').click(function() {
-        $('.word-translation').hide();
-        translation = $(this).attr('word-translation');
+    function showAnswer(next, args) {
+	var next = next;
+	var args = args;
+        translation = $('#word-translation').attr('word-translation');
         word_original = $('#word-original').text();
         $('#word-original').text(word_original + ' - ' + translation);
         message_box = $('#message')        
@@ -12,14 +13,18 @@ $(document).ready(function() {
             message_box.delay(5000).fadeOut();
         });
 
-        window.setTimeout( function() {
-            $('.btn-train[train-result=no]').click();
-            $('.btn-train').show(); 
-            $('.word-translation').show();
-        }, 5000);
         $('.btn-train').hide();
+        console.log('[' + new Date().toUTCString() + '] ' + 'showing answer')
+
+        window.setTimeout( function() {
+            $('.btn-train').show(); 
+            console.log(args);
+            console.log('[' + new Date().toUTCString() + '] ' + 'sending ajax')
+            next(args);
+            
+        }, 5000);
         
-    });
+    }
     $(".btn-train").click(function() {
         word_id = $(this).attr('word-id');
         train_result = $(this).attr('train-result');
@@ -28,7 +33,28 @@ $(document).ready(function() {
           training_mode = 'default';
         }
         
+        args_vals = {
+           'word_id' : word_id,
+           'training_mode': training_mode,
+           'train_result' : train_result
+        }
+        next = function(args) { sendTrainResult(args); }
+        if(train_result == "no" && $('#training-answer').is(':checked')) {
+    	    console.log('[' + new Date().toUTCString() + '] ' + 'calling show answer')
+    	    showAnswer( next, args_vals );
+        } else {
+    	    next(args_vals);
         
+        
+        }
+        
+    });        
+
+    function sendTrainResult(args) {
+        console.log(args);
+	var word_id = args['word_id'];
+	var training_mode = args['training_mode'];
+	var train_result = args['train_result'];
         message_box = $('#message')
         console.log(' word word_id ' + word_id + ' result ' + train_result);
 
@@ -44,7 +70,7 @@ $(document).ready(function() {
                 
                     console.log("Result:" + data.result);
                     $('#word-original').text(data.result.word_original);
-                    $('.word-translation').attr('word-translation', data.result.word_translation);
+                    $('#word-translation').attr('word-translation', data.result.word_translation);
                     $('.btn-train').each(function() {
                 	btn = $(this);
                 	btn.attr('word-id', data.result.word_id);
@@ -64,8 +90,8 @@ $(document).ready(function() {
 
             }
         });
-        return false;
-    });
+    }
+
     
     function loadWordStats(word_id) {
         console.log(word_id);
@@ -112,6 +138,15 @@ $(document).ready(function() {
     $('input[name="training-mode"]').click(function() {
         $.cookie('training-mode', $(this).val(), {expires: 30}); // Save cookie
     });
+
+    var training_answer_selected = $.cookie('training-answer'); // Retrieve cookie value
+    if(training_answer_selected != null) {
+        $('#training-answer').prop('checked', training_answer_selected === "true" ? true : false ); // Check matching button
+    }      
+    $('input[name="training-answer"]').click(function() {
+        $.cookie('training-answer', $(this).is(':checked'), {expires: 30}); // Save cookie
+    });
+
             
 
     window.setTimeout(function() {

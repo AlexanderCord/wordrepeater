@@ -50,9 +50,10 @@ const startTraining = async (req: Request, res: Response): Promise<void> => {
 const defaultTraining = async (req: Request, response: Response): Promise<void> => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
   try {
+
     await saveTrainResult(response, req.query.word_id, req.query.train_result);
   
-    let train_stats : {word_id: String, success_rate: Number}[] = [];
+    let train_stats : {word_id: any, success_rate: Number}[] = [];
     let stat_count = 0;
     let res = await TrainLog.aggregate([
     {
@@ -113,7 +114,7 @@ const defaultTraining = async (req: Request, response: Response): Promise<void> 
     if(res.length > 0) {
       for(let i=0; i<res.length; i++) {
         stat_count ++;
-        //train_stats[ i ] = {}
+        train_stats[ i ] = {word_id: "", success_rate: 0}
         train_stats[ i ].word_id = res[i]._id.word_id
         if(res[i].train_result_yes + res[i].train_result_no > 0){
           train_stats[ i ].success_rate = Math.round(100*res[i].train_result_yes/(res[i].train_result_yes + res[i].train_result_no));
@@ -152,7 +153,9 @@ const defaultTraining = async (req: Request, response: Response): Promise<void> 
 // @todo JSON errors render in JSON format => client-side update
 const newWordsTraining = async (req: Request, response: Response): Promise<void> => {
   console.log( req.query.word_id + '=' + req.query.train_result );  
+
   try {
+
     // Saving training result for this word
     await saveTrainResult(response, req.query.word_id, req.query.train_result);
 
@@ -195,6 +198,7 @@ const newWordsTraining = async (req: Request, response: Response): Promise<void>
 // Training mode all - All words (random order)
 const allWordsTraining = async (req: Request, response: Response): Promise<void> => {
   try {
+
     console.log( req.query.word_id + '=' + req.query.train_result );  
     await saveTrainResult(response, req.query.word_id, req.query.train_result);
 
