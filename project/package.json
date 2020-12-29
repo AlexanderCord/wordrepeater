@@ -9,11 +9,15 @@
     "tsc": "tsc",
     "copy-files": "copyfiles -u 1 'src/**/*.html' 'dist/'"
   },
+  "nodemonConfig": {
+    "ignore": ["sessions/*"]
+  },
   "dependencies": {
     "@types/cors": "^2.8.6",
     "@types/express": "^4.6.1",
     "@types/express-session": "^1.17.3",
     "@types/mongoose": "^5.10.x",
+    "@types/session-file-store": "^1.2.1",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "cookie-parser": "~1.4.4",
@@ -33,6 +37,7 @@
     "morgan": "~1.9.1",
     "nodemon": "^2.0.6",
     "request": "^2.88.2",
+    "session-file-store": "^1.5.0",
     "swig": "^1.4.2",
     "uuid": "^8.3.2"
   },

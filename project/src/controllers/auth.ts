@@ -26,6 +26,9 @@ declare module 'express-session' {
 
 import { v4 as uuidv4 } from 'uuid';
 
+
+const FileStore = require('session-file-store')(session);
+let fileStoreOptions = {};
 const sessionGen = 
  session({
   genid: (req: any) => {
@@ -35,7 +38,8 @@ const sessionGen =
   },
   secret: config.auth.session_secret,
   resave: false,
-  saveUninitialized: true
+  store: new FileStore(fileStoreOptions),
+  saveUninitialized: true,
   });
 
 
