@@ -3,7 +3,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const config = require('../dist/config');
 //console.log(auth);
-
+var assert = require('assert');
 chai.use(chaiHttp);
 
 var testWord = 'Test Word ' + Math.random();
@@ -74,7 +74,7 @@ describe('Adding and removing words', function() {
       console.log('Test error');
       console.log(e);
     }
-    return true;
+    assert.ok(true);
 
     
   });

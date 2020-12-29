@@ -3,14 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "npm ci && npm run tsc && npm run copy-files && npm run test",
+    "build": "npm ci && npm run tsc && npm run delete-temp && npm run copy-files && npm run test",
     "start": "node ./bin/www",
     "test": "npx mocha --require mocha-steps --reporter spec",
     "tsc": "tsc",
-    "copy-files": "copyfiles -u 1 'src/**/*.html' 'dist/'"
+    "copy-files": "copyfiles -u 1 'src/**/*.html' 'dist/'",
+    "delete-temp": "rimraf sessions/*"
   },
   "nodemonConfig": {
-    "ignore": ["sessions/*"]
+    "ignore": [
+      "sessions/*"
+    ]
   },
   "dependencies": {
     "@types/cors": "^2.8.6",
@@ -48,6 +51,7 @@
     "@types/morgan": "^1.9.2",
     "@types/swig": "0.0.29",
     "@types/uuid": "^8.3.0",
-    "copyfiles": "^2.4.1"
+    "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2"
   }
 }

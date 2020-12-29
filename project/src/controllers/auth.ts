@@ -40,6 +40,7 @@ const sessionGen =
   resave: false,
   store: new FileStore(fileStoreOptions),
   saveUninitialized: true,
+  cookie: { maxAge: Date.now() + (30 * 86400 * 1000) }
   });
 
 
