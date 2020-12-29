@@ -1,7 +1,9 @@
 var express = require('express');
 var authRouter = express.Router();
 
-const {basicAuth,
+const {
+      sessionGen,
+      basicAuth,
       loginAction,
       callbackAction,
       logoutAction} = require('../controllers/auth');
@@ -13,6 +15,7 @@ authRouter.get('/auth/google/callback', callbackAction);
 
 
 export {
+    sessionGen,
     basicAuth,
     authRouter
 }

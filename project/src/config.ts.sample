@@ -3,6 +3,7 @@ var config: any = {};
 config.auth = {};
 config.auth.client_id = '';
 config.auth.client_secret = '';
+config.auth.session_secret = '';
 config.auth.host = ''; // with http or https, without ending slash
 
 config.mongo = {};

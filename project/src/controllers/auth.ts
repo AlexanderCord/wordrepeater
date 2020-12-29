@@ -14,6 +14,31 @@ var config: any = require('../config');
 // @todo use some external library to save auth session
 //============================================
 
+import session from 'express-session';
+
+
+declare module 'express-session' {
+  export interface SessionData {
+    userEmail: String; //: { [key: string]: any };
+    auth: Boolean;
+  }
+}
+
+import { v4 as uuidv4 } from 'uuid';
+
+const sessionGen = 
+ session({
+  genid: (req: any) => {
+    console.log('Inside the session middleware')
+    console.log(req.sessionID)
+    return uuidv4(); // use UUIDs for session IDs
+  },
+  secret: config.auth.session_secret,
+  resave: false,
+  saveUninitialized: true
+  });
+
+
 const oauth2Client = new OAuth2Client(
     config.auth.client_id,
     config.auth.client_secret,
@@ -30,31 +55,27 @@ const redirectUrl = oauth2Client.generateAuthUrl({
 let auth = false; 
 
 const basicAuth = async function basicAuth(req: any, res: any, next: any) {
+    
+    console.log(req.sessionID);
+    console.log(req.session);
+    
     if(req.path == "/login" || req.path == "/auth/google/callback" || req.path == "/logout") {
 	return next();
     }
     // header authentification via header for testing
     // @todo rewrite
     console.log(req.headers)
-    if(!auth && !(req.header('Auth') == config.auth.client_secret)) {
+    if(!req.session.auth && !(req.header('Auth') == config.auth.client_secret)) {
 	console.log('Not authorized');
 	return res.redirect('/login');
-    } else if (auth) {
-        var oauth2 = google.oauth2({
-	  auth: oauth2Client,
-	  version: 'v2'
-	});
-	let userinfo = await oauth2.userinfo.get();
-	let userEmail = userinfo.data.email;
-	req.app.locals.userEmail = userEmail;
-    }
+    } 
     
     next();
 }
 const loginAction = async function (req: any, res:any) {
-    if (auth) {
+    if (req.session.auth) {
 
-        res.render('login', {buttonSpan: 'Sign out', url: '/logout', userInfo: req.app.locals.userEmail})
+        res.render('login', {buttonSpan: 'Sign out', url: '/logout', userInfo: req.session.userEmail})
     } else {
         res.render('login', {buttonSpan: 'Sign in', url: redirectUrl, userInfo: ""})
     }
@@ -66,20 +87,30 @@ const callbackAction = async function (req: any, res:any) {
     if (code) {
         const {tokens} = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
-        auth = true;
+        req.session.auth = true;
+        var oauth2 = google.oauth2({
+	  auth: oauth2Client,
+	  version: 'v2'
+	});
+	let userinfo = await oauth2.userinfo.get();
+	let userEmail = userinfo.data.email;
+	req.session.userEmail = userEmail;
+
     }
     res.redirect('/');
 }
 
 const logoutAction = (req: any, res: any) => {
     oauth2Client.revokeCredentials();
-    auth = false;
+    req.session.auth = false;
+    req.session.destroy();
     res.redirect('/login');
 }
 
 //============================================
 
 export {
+    sessionGen,
     basicAuth,
     loginAction,
     callbackAction,

@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
  
       
-import {indexRouter} from './routes/index';
 
 var app = express();
 
@@ -48,11 +47,13 @@ app.use(express.static(path.join(__dirname, '/../public')));
 
 
 // OAuth Authorization
-
-import {basicAuth, authRouter} from './routes/auth';
+import {sessionGen, basicAuth, authRouter} from './routes/auth';
+app.use(sessionGen);
 app.use(basicAuth)
 app.use(authRouter);
 
+
+import {indexRouter} from './routes/index';
 
 app.use('/', indexRouter);
 
