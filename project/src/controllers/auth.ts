@@ -30,7 +30,7 @@ const redirectUrl = oauth2Client.generateAuthUrl({
 let auth = false; 
 
 const basicAuth = async function basicAuth(req: any, res: any, next: any) {
-    if(req.path == "/login" || req.path == "/auth/google/callback") {
+    if(req.path == "/login" || req.path == "/auth/google/callback" || req.path == "/logout") {
 	return next();
     }
     // header authentification via header for testing
