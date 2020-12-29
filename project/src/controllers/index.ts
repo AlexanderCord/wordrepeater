@@ -6,7 +6,7 @@ var router = express.Router();
 
 /* GET home page. */
 const indexController = async (req: Request, res: Response): Promise<void> => {
-  res.render('index', { title: 'WordRepeater', });
+  res.render('index', { title: 'WordRepeater', userEmail: req.app.locals.userEmail});
 }
 
 export { indexController };
