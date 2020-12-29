@@ -2,15 +2,6 @@ const expect = require("chai").expect;
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const config = require('../dist/config');
-for (let u in config.basic.users) {
-  var user = u;
-  var pass = config.basic.users[user]
-  break;
-}
-
-//console.log(user)
-//console.log(pass);
-var auth = 'Basic ' + Buffer.from(user + ':' + pass).toString('base64');
 //console.log(auth);
 
 chai.use(chaiHttp);
@@ -37,14 +28,14 @@ describe('Adding and removing words', function() {
         //            .send()
         //            .set()
 
-        .set('Authorization', auth)
+        .set('Auth', config.auth.client_secret)
         .send({
           original: testWord,
           translation: testWordTranslation
         });
-
       //console.log(response);
       let html = response.res.text;
+      expect(html).not.to.be.empty;
       if (html.length > 0) {
         let reg = new RegExp('/vocabulary/word/(.+)">' + testWord);
         let tempWordId = reg.exec(html)[1];
@@ -59,17 +50,17 @@ describe('Adding and removing words', function() {
           const response2 = await chai
             .request(host)
             .post(path)
-            .set('Authorization', auth)
+            .set('Auth', config.auth.client_secret)
 
 
           let html = response2.res.text;
           console.log(html.length);
+          expect(html).not.to.be.empty;
           if (html.length > 0) {
             console.log('Test removal ok');
           } else {
             console.log('Test removal error');
           }
-
 
 
 
@@ -83,7 +74,9 @@ describe('Adding and removing words', function() {
       console.log('Test error');
       console.log(e);
     }
+    return true;
 
+    
   });
 });
 
