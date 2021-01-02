@@ -1,13 +1,26 @@
-import { Response, Request } from 'express'
-
-var express = require('express');
-var router = express.Router();
-
-
-/* GET home page. */
-const indexController = async (req: Request, res: Response): Promise<void> => {
-  let userEmail = req.session.userEmail;
-  res.render('index', { title: 'WordRepeater', userEmail: userEmail});
+import * as express from 'express';
+import IController from './icontroller';
+ 
+class IndexController implements IController{
+  public path = '/';
+  public router = express.Router();
+ 
+  constructor() {
+    this.intializeRoutes();
+  }
+ 
+  public intializeRoutes() {
+    this.router.get(this.path, this.index);
+  }
+  
+  index = async (req: express.Request, res: express.Response): Promise<void> => {
+    let userEmail = req.session.userEmail;
+    res.render('index', { title: 'WordRepeater', userEmail: userEmail});
+  }
+  
 }
+ 
+export default IndexController;
 
-export { indexController };
+
+

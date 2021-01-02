@@ -53,9 +53,17 @@ app.use(basicAuth)
 app.use(authRouter);
 
 
-import {indexRouter} from './routes/index';
+// new routes as controller
 
-app.use('/', indexRouter);
+import indexController from './controllers/index';
+import IController from './controllers/icontroller';
+
+function initializeControllers(controllers: IController[]) {
+  controllers.forEach((controller) => {
+     app.use(controller.path, controller.router);
+    });
+}
+initializeControllers([new indexController()]);
 
 // mongoose config
 require('./models/database');
