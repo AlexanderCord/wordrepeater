@@ -98,7 +98,7 @@ describe('Testing training modes', function() {
   let host = "http://localhost:3000";
   let path = "/train";
   
-  beforeEach(async function () {
+  beforeEach(async function () { 
     await wait(500);
     console.log('pausing');
   });

@@ -1,12 +1,7 @@
 var express = require('express');
 var authRouter = express.Router();
 
-const {
-      sessionGen,
-      basicAuth,
-      loginAction,
-      callbackAction,
-      logoutAction} = require('../controllers/auth');
+import { sessionGen, basicAuth, loginAction, callbackAction, logoutAction } from '../controllers/auth';
 
 
 authRouter.get('/login', loginAction);
