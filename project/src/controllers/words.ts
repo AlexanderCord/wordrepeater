@@ -137,7 +137,7 @@ const deleteWord = async (req: Request, response: Response): Promise<void> => {
     await TrainLog.deleteMany({word_id: req.params.id }).exec();
     
     console.log('removed log');
-    response.redirect('/vocabulary/words');
+    response.redirect('/vocabulary/words?removed');
   } catch(err) {
     // Error handling
     response.render('error', {error:err});

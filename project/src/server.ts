@@ -1,11 +1,11 @@
-import App from './main';
+import App from './app';
 import IndexController from './controllers/index';
  
 const app = new App(
   [
     new IndexController(),
   ],
-  5000,
+  3000,
 );
  
 app.listen();
