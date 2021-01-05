@@ -60,16 +60,13 @@ class App {
 
     // new routes as controller
 
-    // mongoose config
-    require("./models/database");
+  
 
     // Vocabulary UI
     var wordsRouter = require("./routes/words");
     this.app.use("/vocabulary", wordsRouter);
 
     // Training UI
-    var trainRouter = require("./routes/train");
-    this.app.use("/train", trainRouter);
 
   }
 
