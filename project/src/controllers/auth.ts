@@ -2,6 +2,9 @@ const {google} = require('googleapis');
 
 const { OAuth2Client } = require("google-auth-library");
 
+import express from 'express';
+
+
 
 
 
@@ -25,6 +28,7 @@ declare module 'express-session' {
 }
 
 import { v4 as uuidv4 } from 'uuid';
+
 
 
 const FileStore = require('session-file-store')(session);
@@ -114,10 +118,15 @@ const logoutAction = (req: any, res: any) => {
 
 //============================================
 
+var authRouter = express.Router();
+
+authRouter.get('/login', loginAction);
+authRouter.get('/logout', logoutAction);
+authRouter.get('/auth/google/callback', callbackAction);
+
 export {
     sessionGen,
     basicAuth,
-    loginAction,
-    callbackAction,
-    logoutAction
+    authRouter
+
 };

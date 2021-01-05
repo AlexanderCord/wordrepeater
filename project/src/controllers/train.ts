@@ -85,7 +85,7 @@ class TrainController implements IController{
   }
 
 
-  startTraining = async (req: Request, res: Response): Promise<void> => {
+  private startTraining = async (req: Request, res: Response): Promise<void> => {
     res.render('train',
       {title: 'Training', word: []}
     );
@@ -93,7 +93,7 @@ class TrainController implements IController{
   }
 
   // Default training mode - Words that you've scored with 90% or less
-  defaultTraining = async (req: Request, response: Response): Promise<void> => {
+  private defaultTraining = async (req: Request, response: Response): Promise<void> => {
     console.log( req.query.word_id + '=' + req.query.train_result );  
     try {
 
@@ -197,7 +197,7 @@ class TrainController implements IController{
   // Training mode NEW - New words (zero score)
   // @todo update word's score in a cache table to avoid memory overload, or using Mongo's lookup
   // @todo JSON errors render in JSON format => client-side update
-  newWordsTraining = async (req: Request, response: Response): Promise<void> => {
+  private newWordsTraining = async (req: Request, response: Response): Promise<void> => {
     console.log( req.query.word_id + '=' + req.query.train_result );  
 
     try {
@@ -242,7 +242,7 @@ class TrainController implements IController{
   }
 
   // Training mode all - All words (random order)
-  allWordsTraining = async (req: Request, response: Response): Promise<void> => {
+  private allWordsTraining = async (req: Request, response: Response): Promise<void> => {
     try {
 
       console.log( req.query.word_id + '=' + req.query.train_result );  
@@ -276,7 +276,7 @@ class TrainController implements IController{
   Log UI
   ******************
   */
-  logPage = async (req: Request, response: Response): Promise<void> => {
+  private logPage = async (req: Request, response: Response): Promise<void> => {
     try {
       let log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
       
@@ -296,7 +296,7 @@ class TrainController implements IController{
   }
 
 
-  logFilter = async (req: Request, response: Response): Promise<void> => {
+  private logFilter = async (req: Request, response: Response): Promise<void> => {
     try {
       let filter_date = req.query.date;
       console.log(filter_date);
@@ -327,7 +327,7 @@ class TrainController implements IController{
 
 
 
-  allLog = async (req: Request, response: Response): Promise<void> => {
+  private allLog = async (req: Request, response: Response): Promise<void> => {
     
     try {
       let log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
@@ -344,7 +344,7 @@ class TrainController implements IController{
     
   }
 
-  wordStats = async (req: Request, response: Response): Promise<void> => {
+  private wordStats = async (req: Request, response: Response): Promise<void> => {
     try{ 
       console.log( req.query.word_id  );  
       console.log('Train stats for one word');  

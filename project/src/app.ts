@@ -1,7 +1,6 @@
 // OAuth Authorization
-import { sessionGen, basicAuth, authRouter } from "./routes/auth";
+import { sessionGen, basicAuth, authRouter } from "./controllers/auth";
 
-import indexController from "./controllers/index";
 import IController from "./controllers/icontroller";
 
 import express from "express";
@@ -56,17 +55,6 @@ class App {
     this.app.use(sessionGen);
     this.app.use(basicAuth);
     this.app.use(authRouter);
-    console.log('ROUTERS');
-
-    // new routes as controller
-
-  
-
-    // Vocabulary UI
-    var wordsRouter = require("./routes/words");
-    this.app.use("/vocabulary", wordsRouter);
-
-    // Training UI
 
   }
 

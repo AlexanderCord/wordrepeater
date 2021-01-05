@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import IController from './icontroller';
  
 class IndexController implements IController{
@@ -13,7 +13,7 @@ class IndexController implements IController{
     this.router.get(this.path, this.index);
   }
   
-  index = async (req: express.Request, res: express.Response): Promise<void> => {
+  private index = async (req: express.Request, res: express.Response): Promise<void> => {
     let userEmail = req.session.userEmail;
     res.render('index', { title: 'WordRepeater', userEmail: userEmail});
   }

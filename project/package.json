@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "npm ci && npm run tsc && npm run delete-temp && npm run copy-files && npm run test",
+    "build": "npm ci && npm run delete-temp && npm run delete-dist && npm run tsc && npm run copy-files && npm run test",
     "start": "node ./dist/server.js",
     "test": "npx mocha --require mocha-steps --reporter spec",
     "tsc": "tsc",
     "copy-files": "copyfiles -u 1 'src/**/*.html' 'dist/'",
-    "delete-temp": "rimraf sessions/*"
+    "delete-temp": "rimraf sessions/*",
+    "delete-dist": "rimraf dist/*"
+
   },
   "nodemonConfig": {
     "ignore": [
