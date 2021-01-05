@@ -199,3 +199,92 @@ describe('Testing training modes', function() {
 
 
 
+describe('Testing training log', function() {
+  let host = "http://localhost:3000";
+  let path = "/train";
+  
+  beforeEach(async function () { 
+    await wait(500);
+    console.log('pausing');
+  });
+
+  it('should return correct log by default /train/log', async function() {
+    try {
+      const response = await chai
+        .request(host)
+        .get(path + '/log')
+
+        .set('Auth', config.auth.client_secret)
+        .query({
+          
+        });
+      let html = response.res.text;
+      //console.log(html);
+      expect(html).not.to.be.empty;
+      expect(html).to.have.string('- no');
+      expect(html).to.have.string('- yes');      
+
+    } catch (e) {
+      console.log('Test error');
+      console.log(e);
+      throw new Error();
+    }
+      
+  });
+
+  it('should return no logs in the future /train/log/filter', async function() {
+    try {
+      const response = await chai
+        .request(host)
+        .get(path + '/log/filter')
+
+        .set('Auth', config.auth.client_secret)
+        .query({
+           date: '2030-01-01'
+        });
+      let html = response.res.text;
+      //console.log(html);
+      expect(html).not.to.be.empty;
+      if (html.length > 0 && JSON.parse(html)) {
+        let rowsObj = JSON.parse(html);
+        console.log(rowsObj.result);;
+        expect(rowsObj.result.log).to.be.empty;
+        
+      }     
+
+    } catch (e) {
+      console.log('Test error');
+      console.log(e);
+      throw new Error();
+    }
+      
+  });  
+  it('should return some logs in the future /train/log/all', async function() {
+    try {
+      const response = await chai
+        .request(host)
+        .get(path + '/log/all')
+
+        .set('Auth', config.auth.client_secret)
+        .query({
+            
+        });
+      let html = response.res.text;
+      //console.log(html);
+      expect(html).not.to.be.empty;
+      if (html.length > 0 && JSON.parse(html)) {
+        let rowsObj = JSON.parse(html);
+        console.log(rowsObj.result);;
+        expect(rowsObj.result.log).not.to.be.empty;
+        expect(rowsObj.result.log).lengthOf.above(0);
+      }     
+
+    } catch (e) {
+      console.log('Test error');
+      console.log(e);
+      throw new Error();
+    }
+      
+  });  
+  
+});
