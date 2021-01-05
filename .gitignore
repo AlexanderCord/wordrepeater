@@ -4,6 +4,7 @@ tutorial
 config.js
 config.ts
 server.sh
+*.code-workspace
 
 # Logs
 logs
