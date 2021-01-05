@@ -11,11 +11,18 @@ var testWordTranslation = 'Test Word Translation ' + Math.random();
 var testWordId = '';
 console.log(testWord);
 console.log(testWordTranslation);
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 
 describe('Adding and removing words', function() {
   let host = "http://localhost:3000";
   let path = "/vocabulary/words";
+
+  beforeEach(async function () { 
+    await wait(500);
+    console.log('pausing');
+  });
+
 
   it('should save words to : /vocabulary/words POST', async function() {
     try {
@@ -92,7 +99,6 @@ describe('Adding and removing words', function() {
   });
 });
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 describe('Testing training modes', function() {
   let host = "http://localhost:3000";
