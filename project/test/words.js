@@ -110,7 +110,7 @@ describe('Testing training modes', function() {
         .get(path + '/default')
 
         .set('Auth', config.auth.client_secret)
-        .send({
+        .query({
           word_id: '',
           train_result: 'skip'
         });
@@ -141,7 +141,7 @@ describe('Testing training modes', function() {
         .get(path + '/new')
 
         .set('Auth', config.auth.client_secret)
-        .send({
+        .query({
           word_id: '',
           train_result: 'skip'
         });
@@ -172,7 +172,7 @@ describe('Testing training modes', function() {
         .get(path + '/new')
 
         .set('Auth', config.auth.client_secret)
-        .send({
+        .query({
           word_id: '',
           train_result: 'skip'
         });
