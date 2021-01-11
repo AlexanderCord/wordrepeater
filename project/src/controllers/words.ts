@@ -101,7 +101,12 @@ class WordsController implements IController{
   
   private addWord = async (req: Request, response: Response): Promise<void> => {
     try { 
-      let word = await new Vocabulary({original : req.body.original, translation: req.body.translation})
+      let word_original = req.body.original;
+      let word_translation = req.body.translation;
+      word_original = word_original.toLowerCase().trim();
+      word_translation = word_translation.toLowerCase().trim();
+
+      let word = await new Vocabulary({original : word_original, translation: word_translation})
       .save();
     
       console.log(word)

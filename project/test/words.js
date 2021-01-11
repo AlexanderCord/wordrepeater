@@ -50,7 +50,7 @@ describe('Adding and removing words', function() {
       //expect(response.redirects[0].toString()).to.have.string('added');;
     //  expect(response.redirects[0].to.have.string('added'));
       if (html.length > 0) {
-        let reg = new RegExp('/vocabulary/word/(.+)">' + testWord);
+        let reg = new RegExp('/vocabulary/word/(.+)">' + testWord, "i");
         let tempWordId = reg.exec(html)[1];
         if (typeof tempWordId !== 'undefined') {
           testWordId = tempWordId;
