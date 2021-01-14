@@ -40,6 +40,14 @@ $(document).ready(function() {
     }).hide()          
   }
 
+  function showError(errorText) {
+    message_box = $('#message')        
+    message_box.text(errorText).show();
+    message_box.fadeIn('slow', function() {
+        message_box.delay(5000).fadeOut();
+    });
+  }
+
   function hashChanged(hash) {
     var fn = hash.replace('#', "").split('&');
   
@@ -54,6 +62,8 @@ $(document).ready(function() {
 
         } else if(param == "word" && val.length > 0 ) {
           filterByWord(val);
+        } else if(param == "error" && val.length > 0) {
+          showError(decodeURI(val))
         }
         
         console.log(param  + '=' + val);
@@ -63,6 +73,7 @@ $(document).ready(function() {
     }
   }
   var storedHash = window.location.hash;
+  hashChanged(storedHash);
   window.setInterval(function () {
     if (window.location.hash != storedHash) {
       storedHash = window.location.hash;

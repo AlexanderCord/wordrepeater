@@ -106,11 +106,17 @@ class WordsController implements IController{
       word_original = word_original.toLowerCase().trim();
       word_translation = word_translation.toLowerCase().trim();
 
-      let word = await new Vocabulary({original : word_original, translation: word_translation})
-      .save();
+      let wordExists: any = await Vocabulary.find({original: word_original}).exec();
+      if(wordExists.length && wordExists.length>0) {
+        response.redirect('/vocabulary/words#error=Word already exists');
+      } else {
+
+        let word = await new Vocabulary({original : word_original, translation: word_translation})
+        .save();
     
-      console.log(word)
-      response.redirect('/vocabulary/words?added');
+        console.log(word)
+        response.redirect('/vocabulary/words?added');
+      }
   
     } catch(err) {
       // Error handling

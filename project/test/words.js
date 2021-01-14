@@ -46,6 +46,31 @@ describe('Adding and removing words', function() {
       let redirectUrl = response.redirects[0].toString();
       console.log(redirectUrl);
       expect(redirectUrl).to.have.string('added');
+
+      console.log('Checking that duplicate check work');
+      const responseExists = await chai
+        .request(host)
+        .post(path)
+        .set('Auth', config.auth.client_secret)
+        .send({
+          original: testWord,
+          translation: testWordTranslation
+        });
+      //console.log(response);
+      let htmlExists = responseExists.res.text;
+      expect(htmlExists).not.to.be.empty;
+      let redirectUrlExists = responseExists.redirects[0].toString();
+      console.log(redirectUrlExists);
+      expect(redirectUrlExists).to.have.string('exists'); 
+
+
+
+
+
+
+
+
+
       //assert.include(response.redirects[0], 'added', 'added word assert');
       //expect(response.redirects[0].toString()).to.have.string('added');;
     //  expect(response.redirects[0].to.have.string('added'));
@@ -280,7 +305,7 @@ describe('Testing training log', function() {
       expect(html).not.to.be.empty;
       if (html.length > 0 && JSON.parse(html)) {
         let rowsObj = JSON.parse(html);
-        console.log(rowsObj.result);;
+        //console.log(rowsObj.result);;
         expect(rowsObj.result.log).not.to.be.empty;
         expect(rowsObj.result.log).lengthOf.above(0);
       }     
