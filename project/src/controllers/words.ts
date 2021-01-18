@@ -108,7 +108,7 @@ class WordsController implements IController{
 
       let wordExists: any = await Vocabulary.find({original: word_original}).exec();
       if(wordExists.length && wordExists.length>0) {
-        response.redirect('/vocabulary/words#error=Word already exists');
+        response.redirect('/vocabulary/words#error=Word already exists&word='+word_original);
       } else {
 
         let word = await new Vocabulary({original : word_original, translation: word_translation})
