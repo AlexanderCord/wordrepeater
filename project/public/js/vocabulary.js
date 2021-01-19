@@ -61,7 +61,7 @@ $(document).ready(function() {
           filterByFirstCharacter(val);
 
         } else if(param == "word" && val.length > 0 ) {
-          filterByWord(val);
+          filterByWord(decodeURI(val));
         } else if(param == "error" && val.length > 0) {
           showError(decodeURI(val))
         }
