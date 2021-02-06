@@ -75,6 +75,89 @@ $(document).ready(function() {
         });
         return false;
     }
+
     
+
+    var chart1 = new CanvasJS.Chart("yesChart",
+    {
+        title: {
+            text: "Yes chart"               
+        },
+        axisX:{      
+            valueFormatString: "DD-MMM" ,
+            labelAngle: -50
+        },
+        axisY: {
+          valueFormatString: "#,###"
+      },
+
+      data: [
+      {        
+        type: "area",
+        color: "rgba(0,75,141,0.7)",
+        dataPoints: [
+
+        { x: new Date(2012, 06, 15), y: 0},       
+        { x: new Date(2012, 06, 18), y: 20 }, 
+        { x: new Date(2012, 06, 23), y: 30 }, 
+        { x: new Date(2012, 07, 1), y: 10}, 
+        { x: new Date(2012, 07, 11), y: 21}, 
+        { x: new Date(2012, 07, 23), y: 50} ,
+        { x: new Date(2012, 07, 31), y: 75}, 
+        { x: new Date(2012, 08, 04), y: 10},
+        { x: new Date(2012, 08, 10), y: 12},
+        { x: new Date(2012, 08, 13), y: 15}, 
+        { x: new Date(2012, 08, 16), y: 17}, 
+        { x: new Date(2012, 08, 18), y: 20}, 
+        { x: new Date(2012, 08, 21), y: 22}, 
+        { x: new Date(2012, 08, 24), y: 25}, 
+        { x: new Date(2012, 08, 26), y: 27}, 
+        { x: new Date(2012, 08, 28), y: 30} 
+        ]
+    }
+    
+    ]
+    });
+    var chart2 = new CanvasJS.Chart("noChart",
+    {
+        title: {
+            text: "No chart"               
+        },
+        axisX:{      
+            valueFormatString: "DD-MMM" ,
+            labelAngle: -50
+        },
+        axisY: {
+          valueFormatString: "#,###"
+      },
+
+      data: [
+      {        
+        type: "area",
+        color: "rgba(0,75,141,0.7)",
+        dataPoints: [
+
+        { x: new Date(2012, 06, 15), y: 0},       
+        { x: new Date(2012, 06, 18), y: 20 }, 
+        { x: new Date(2012, 06, 23), y: 30 }, 
+        { x: new Date(2012, 07, 1), y: 10}, 
+        { x: new Date(2012, 07, 11), y: 21}, 
+        { x: new Date(2012, 07, 23), y: 50} ,
+        { x: new Date(2012, 07, 31), y: 75}, 
+        { x: new Date(2012, 08, 04), y: 10},
+
+        { x: new Date(2012, 08, 21), y: 22}, 
+        { x: new Date(2012, 08, 24), y: 25}, 
+        { x: new Date(2012, 08, 26), y: 27}, 
+        { x: new Date(2012, 08, 28), y: 30} 
+        ]
+    }
+    
+    ]
+    });    
+
+    chart1.render();
+    chart2.render();
+
 });
 
