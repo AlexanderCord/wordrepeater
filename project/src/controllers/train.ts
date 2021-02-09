@@ -48,9 +48,13 @@ class TrainController implements IController{
     
     this.router.get('/log/filter', this.logFilter);
     
-    this.router.get('/log/all', this.allLog);
+    this.router.get('/log/all', this.allLog);    
     
     this.router.get('/stats', this.wordStats);
+
+    this.router.get('/log/days_trained_yes', this.daysTrainedYes);
+    
+    //this.router.get('/log/data/days_trained_no', this.daysTrainedNo);
         
   }
   
@@ -413,6 +417,56 @@ class TrainController implements IController{
 
 
   }  
+
+  private daysTrainedYes = async (req: Request, response: Response): Promise<void> => {
+    try{ 
+      
+      console.log('Log data grouped by date with YES responses');  
+      const moment: any = require('moment');
+    
+      let filter_date_from = moment().subtract(90, 'days').toDate();     
+
+
+      let data = await TrainLog.aggregate([
+        {
+          $match: {
+            "train_result": true,
+            "added": {
+              $gt: filter_date_from
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$added"
+              }
+            },
+            count: {
+              $sum: 1
+            }
+          }
+        },
+        {
+          $sort: {
+            "_id": 1
+          }
+        }
+      ]).exec();
+      
+
+      
+      response.json({'result' : { data  }});
+
+    } catch(err) {
+      // Error handling
+      response.render('error', {error:err});
+    }
+
+
+  }    
 }
 
 

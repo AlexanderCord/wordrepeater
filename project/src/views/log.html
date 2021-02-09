@@ -9,9 +9,18 @@
     {% include 'header.html' %}  
     <p><a href="/">Home</a></p>
 
-    <div id="yesChart" style="height: 200px; width: 100%;"></div>
-    <div id="noChart" style="height: 200px; width: 100%;"></div>
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <div id="yesChart">
+      <canvas id="yesCanvas" style="height: 200px; width: 100%;"></canvas>
+    </div>
+    <style>
+    canvas{
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
 
     <br>
     Filter: <input type="text" id="filter-date" autocomplete="off"> <a class="btn btn-light" href="#" id="filter-reset">Reset</a>

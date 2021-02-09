@@ -76,88 +76,87 @@ $(document).ready(function() {
         return false;
     }
 
-    
+    loadCharts();
 
-    var chart1 = new CanvasJS.Chart("yesChart",
-    {
-        title: {
-            text: "Yes chart"               
-        },
-        axisX:{      
-            valueFormatString: "DD-MMM" ,
-            labelAngle: -50
-        },
-        axisY: {
-          valueFormatString: "#,###"
-      },
+    function loadCharts() {
 
-      data: [
-      {        
-        type: "area",
-        color: "rgba(0,75,141,0.7)",
-        dataPoints: [
 
-        { x: new Date(2012, 06, 15), y: 0},       
-        { x: new Date(2012, 06, 18), y: 20 }, 
-        { x: new Date(2012, 06, 23), y: 30 }, 
-        { x: new Date(2012, 07, 1), y: 10}, 
-        { x: new Date(2012, 07, 11), y: 21}, 
-        { x: new Date(2012, 07, 23), y: 50} ,
-        { x: new Date(2012, 07, 31), y: 75}, 
-        { x: new Date(2012, 08, 04), y: 10},
-        { x: new Date(2012, 08, 10), y: 12},
-        { x: new Date(2012, 08, 13), y: 15}, 
-        { x: new Date(2012, 08, 16), y: 17}, 
-        { x: new Date(2012, 08, 18), y: 20}, 
-        { x: new Date(2012, 08, 21), y: 22}, 
-        { x: new Date(2012, 08, 24), y: 25}, 
-        { x: new Date(2012, 08, 26), y: 27}, 
-        { x: new Date(2012, 08, 28), y: 30} 
-        ]
+        $.ajax({
+            url: '/train/log/days_trained_yes',
+            data: {},
+            dataType: 'json',
+            success: function(data) {
+                if (data.result) {
+                    let dataPoints = []
+                    let labelPoints = []
+                    for(let i=0; i < data.result.data.length; i++){
+                        let item = data.result.data[i];
+                        dataPoints[dataPoints.length] = 
+                        {
+                            x: moment(item._id).toDate(),
+                            y: item.count
+                        }
+                        labelPoints[labelPoints.length] = item._id
+                    }
+
+                    var config = {
+                        type: 'line',
+                        data: {
+                            labels: labelPoints,
+                            datasets: [{
+                                label: 'Words trained successfully',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 0.2)',
+                                data: dataPoints,
+                                fill: false,
+                            }, ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Yes chart for last 90 days'
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                }
+                            },
+                            hover: {
+                                mode: 'nearest',
+                                intersect: false
+                            },
+                            scales: {
+                                x: {
+                                    display: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Date',
+                                        type: 'date'
+
+                                    }
+                                },
+                                y: {
+                                    display: true,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Value'
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    var ctx = document.getElementById('yesCanvas').getContext('2d');
+			        window.myLine = new Chart(ctx, config);
+
+                }   
+
+            }
+        });
+
+        
     }
-    
-    ]
-    });
-    var chart2 = new CanvasJS.Chart("noChart",
-    {
-        title: {
-            text: "No chart"               
-        },
-        axisX:{      
-            valueFormatString: "DD-MMM" ,
-            labelAngle: -50
-        },
-        axisY: {
-          valueFormatString: "#,###"
-      },
-
-      data: [
-      {        
-        type: "area",
-        color: "rgba(0,75,141,0.7)",
-        dataPoints: [
-
-        { x: new Date(2012, 06, 15), y: 0},       
-        { x: new Date(2012, 06, 18), y: 20 }, 
-        { x: new Date(2012, 06, 23), y: 30 }, 
-        { x: new Date(2012, 07, 1), y: 10}, 
-        { x: new Date(2012, 07, 11), y: 21}, 
-        { x: new Date(2012, 07, 23), y: 50} ,
-        { x: new Date(2012, 07, 31), y: 75}, 
-        { x: new Date(2012, 08, 04), y: 10},
-
-        { x: new Date(2012, 08, 21), y: 22}, 
-        { x: new Date(2012, 08, 24), y: 25}, 
-        { x: new Date(2012, 08, 26), y: 27}, 
-        { x: new Date(2012, 08, 28), y: 30} 
-        ]
-    }
-    
-    ]
-    });    
-
-    chart1.render();
-    chart2.render();
 
 });
 
