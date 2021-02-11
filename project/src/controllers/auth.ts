@@ -69,14 +69,14 @@ const basicAuth = async function basicAuth(req: any, res: any, next: any) {
     console.log(req.session);
     
     if(req.path == "/login" || req.path == "/auth/google/callback" || req.path == "/logout") {
-	return next();
+	    return next();
     }
     // header authentification via header for testing
     // @todo rewrite
     console.log(req.headers)
     if(!req.session.auth && !(req.header('Auth') == config.auth.client_secret)) {
-	console.log('Not authorized');
-	return res.redirect('/login');
+	    console.log('Not authorized');
+	    return res.redirect('/login');
     } 
     
     next();
@@ -86,6 +86,9 @@ const loginAction = async function (req: any, res:any) {
 
         res.render('login', {buttonSpan: 'Sign out', url: '/logout', userInfo: req.session.userEmail})
     } else {
+        oauth2Client.revokeCredentials();
+        req.session.auth = false;
+        req.session.destroy();
         res.render('login', {buttonSpan: 'Sign in', url: redirectUrl, userInfo: ""})
     }
 }

@@ -82,41 +82,62 @@ $(document).ready(function() {
 
 
         $.ajax({
-            url: '/train/log/days_trained_yes',
+            url: '/train/log/days_trained',
             data: {},
             dataType: 'json',
             success: function(data) {
+                console.log(data.result)
                 if (data.result) {
-                    let dataPoints = []
-                    let labelPoints = []
-                    for(let i=0; i < data.result.data.length; i++){
-                        let item = data.result.data[i];
-                        dataPoints[dataPoints.length] = 
-                        {
-                            x: moment(item._id).toDate(),
-                            y: item.count
+                    let dataPoints = {'all' : [], 'yes' : [], 'no' : []};
+                    let labelPoints = [];
+                    ['all', 'yes', 'no'].forEach(tab => {
+                        
+                        for(let i=0; i < data.result['data_'+tab].length; i++){
+                            let item = data.result['data_'+tab][i];
+                            dataPoints[tab][dataPoints[tab].length] = 
+                            {
+                                x: moment(item._id).format("L"),
+                                y: item.count
+                            }
+                            if(tab == 'all') {
+                                labelPoints[labelPoints.length] = moment(item._id).format("L")
+                            }
                         }
-                        labelPoints[labelPoints.length] = item._id
-                    }
+                    });
+                    console.log(dataPoints);
 
                     var config = {
                         type: 'line',
                         data: {
                             labels: labelPoints,
                             datasets: [{
-                                label: 'Words trained successfully',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 0.2)',
-                                data: dataPoints,
+                                label: 'Total words trained (last 90 days)',
+                                backgroundColor: '#000000',
+                                borderColor: '#000000',
+                                data: dataPoints['all'],
+                                fill: false,
+                            }, {
+                                label: 'Yes answers',
+                                backgroundColor: '#28a745',
+                                borderColor: '#28a745',
+                                data: dataPoints['yes'],
+                                fill: false,
+                            }, {
+                                label: 'No answers',
+                                backgroundColor: '#dc3545',
+                                borderColor: '#dc3545',
+                                data: dataPoints['no'],
                                 fill: false,
                             }, ]
                         },
+
+
                         options: {
                             responsive: true,
                             plugins: {
                                 title: {
                                     display: true,
-                                    text: 'Yes chart for last 90 days'
+                                    text: 'Words trained for last 90 days'
                                 },
                                 tooltip: {
                                     mode: 'index',
@@ -133,7 +154,12 @@ $(document).ready(function() {
                                     scaleLabel: {
                                         display: true,
                                         labelString: 'Date',
-                                        type: 'date'
+                                        type: 'time',
+                                        time: {
+                                            parser: 'MM/DD/YYYY',
+                                            // round: 'day'
+                                            tooltipFormat: 'DD MMMM YYYY'
+                                        },
 
                                     }
                                 },

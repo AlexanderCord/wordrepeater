@@ -52,7 +52,7 @@ class TrainController implements IController{
     
     this.router.get('/stats', this.wordStats);
 
-    this.router.get('/log/days_trained_yes', this.daysTrainedYes);
+    this.router.get('/log/days_trained', this.daysTrained);
     
     //this.router.get('/log/data/days_trained_no', this.daysTrainedNo);
         
@@ -418,7 +418,39 @@ class TrainController implements IController{
 
   }  
 
-  private daysTrainedYes = async (req: Request, response: Response): Promise<void> => {
+
+  private getTrainDataByDays = async(filter_date_from: any, filter_train_result: any): Promise<ITrainLog & mongoose.Document> => {
+    return await TrainLog.aggregate([
+      {
+        $match: {
+          "train_result": {$in : filter_train_result},
+          "added": {
+            $gt: filter_date_from
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$added"
+            }
+          },
+          count: {
+            $sum: 1
+          }
+        }
+      },
+      {
+        $sort: {
+          "_id": 1
+        }
+      }
+    ]).exec();  
+  }
+
+  private daysTrained = async (req: Request, response: Response): Promise<void> => {
     try{ 
       
       console.log('Log data grouped by date with YES responses');  
@@ -427,38 +459,13 @@ class TrainController implements IController{
       let filter_date_from = moment().subtract(90, 'days').toDate();     
 
 
-      let data = await TrainLog.aggregate([
-        {
-          $match: {
-            "train_result": true,
-            "added": {
-              $gt: filter_date_from
-            }
-          }
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$added"
-              }
-            },
-            count: {
-              $sum: 1
-            }
-          }
-        },
-        {
-          $sort: {
-            "_id": 1
-          }
-        }
-      ]).exec();
+      let dataAll = await this.getTrainDataByDays(filter_date_from, [true, false])
+      let dataYes = await this.getTrainDataByDays(filter_date_from, [true])
+      let dataNo = await this.getTrainDataByDays(filter_date_from, [false])
       
 
       
-      response.json({'result' : { data  }});
+      response.json({'result' : { 'data_all': dataAll, 'data_yes': dataYes, 'data_no': dataNo  }});
 
     } catch(err) {
       // Error handling
