@@ -90,20 +90,40 @@ $(document).ready(function() {
                 if (data.result) {
                     let dataPoints = {'all' : [], 'yes' : [], 'no' : []};
                     let labelPoints = [];
+                    tab = 'all'
+                    for(let i=0; i < data.result['data_'+tab].length; i++){
+                        let item = data.result['data_'+tab][i];
+                        labelPoints[labelPoints.length] = moment(item._id).format("L")
+                        
+                    }
+                    console.log('data points')
+                    console.log(labelPoints);
+                    tempData = {'all' : {}, 'yes' : {}, 'no' : {}};
                     ['all', 'yes', 'no'].forEach(tab => {
+                        
                         
                         for(let i=0; i < data.result['data_'+tab].length; i++){
                             let item = data.result['data_'+tab][i];
+                            itemDate = moment(item._id).format("L");
+                            tempData[tab][ itemDate ] = item.count;                                                                        
+                        }
+                        
+                            
+                        
+                    });
+                    console.log('temp data')
+                    console.log(tempData);
+                    ['all', 'yes', 'no'].forEach(tab => {
+                        for(let j = 0; j< labelPoints.length; j++) {
+                            currentDate = labelPoints[j];
                             dataPoints[tab][dataPoints[tab].length] = 
                             {
-                                x: moment(item._id).format("L"),
-                                y: item.count
-                            }
-                            if(tab == 'all') {
-                                labelPoints[labelPoints.length] = moment(item._id).format("L")
+                                x: currentDate,
+                                y: tempData[tab][currentDate] ? tempData[tab][currentDate] : 0
                             }
                         }
                     });
+                    console.log('data points');
                     console.log(dataPoints);
 
                     var config = {
