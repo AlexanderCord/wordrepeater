@@ -1,6 +1,6 @@
 # WordRepeater
 
-App that allows you to repeat words you've learned.
+WordRepeater is an app that allows you to repeat words you've learned.
 
 Different training modes are available
 - Repeat only new words
