@@ -2,8 +2,8 @@ $(document).ready(function() {
 
 
     function showAnswer(next, args) {
-	var next = next;
-	var args = args;
+	    var next = next;
+	    var args = args;
         translation = $('#word-translation').attr('word-translation');
         word_original = $('#word-original').text();
         $('#word-original').text(word_original + ' - ' + translation);
@@ -29,6 +29,18 @@ $(document).ready(function() {
         word_id = $(this).attr('word-id');
         train_result = $(this).attr('train-result');
         training_mode = $('input[name="training-mode"]:checked').val();
+        train_progress = $('#train-progress');
+        train_progress_words = $('#train-progress-words');
+        words_done = parseInt(train_progress_words.text())
+        if(isNaN(words_done)) {
+            words_done = 0;
+        } else {
+            words_done++;
+        }
+        train_progress_words.text(words_done);        
+        
+
+
         if(!['default', 'new', 'all'].includes(training_mode)) {
           training_mode = 'default';
         }
@@ -52,10 +64,11 @@ $(document).ready(function() {
 
     function sendTrainResult(args) {
         console.log(args);
-	var word_id = args['word_id'];
-	var training_mode = args['training_mode'];
-	var train_result = args['train_result'];
-        message_box = $('#message')
+	    var word_id = args['word_id'];
+	    var training_mode = args['training_mode'];
+	    var train_result = args['train_result'];
+        message_box = $('#message');
+        
         console.log(' word word_id ' + word_id + ' result ' + train_result);
 
         $.ajax({
