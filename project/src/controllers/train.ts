@@ -102,7 +102,9 @@ class TrainController implements IController{
     try {
 
       await this.saveTrainResult(response, req.query.word_id, req.query.train_result);
-    
+
+      let train_method_original: any = req.query.method_original;
+
       let train_stats : {word_id: any, success_rate: Number}[] = [];
       let stat_count = 0;
       let res = await TrainLog.aggregate([
@@ -186,7 +188,12 @@ class TrainController implements IController{
       console.log('rnd' + rnd);
       let word: any = await Vocabulary.findOne({ "_id": new_word_id }).exec();
       console.log('word' + word);
-      response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation, 'train_stats': train_stats[rnd]  }});
+      if(train_method_original === "true") {
+        response.json({'result' : {'word_original': word.translation, 'word_id' : word.id, 'word_translation' : word.original, 'train_stats': train_stats[rnd]  }});
+      } else {
+        response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation, 'train_stats': train_stats[rnd]  }});
+
+      }
 
     } catch(err) {
       // Error handling
@@ -208,6 +215,8 @@ class TrainController implements IController{
 
       // Saving training result for this word
       await this.saveTrainResult(response, req.query.word_id, req.query.train_result);
+
+      let train_method_original: any = req.query.method_original;
 
       console.log('Training mode: new')
 
@@ -236,7 +245,12 @@ class TrainController implements IController{
       let word: any = await Vocabulary.findOne({"_id": { "$nin" : trained } }).skip(random).exec();
       
       // Sending JSON output
-      response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
+      if(train_method_original === "true") {
+        response.json({'result' : {'word_original': word.translation, 'word_id' : word.id, 'word_translation' : word.original   }});
+      } else {
+        response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation   }});
+      }
+
 
     } catch(err) {
       // Error handling
@@ -252,6 +266,8 @@ class TrainController implements IController{
       console.log( req.query.word_id + '=' + req.query.train_result );  
       await this.saveTrainResult(response, req.query.word_id, req.query.train_result);
 
+      let train_method_original: any = req.query.method_original;
+
       console.log('Training mode = all');
       // Get the count of all words
       let count = await Vocabulary.count({}).exec();
@@ -262,7 +278,11 @@ class TrainController implements IController{
       let word: any = await Vocabulary.findOne().skip(random).exec();
       // Tada! random word
       console.log(word) 
-      response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation  }});
+      if(train_method_original === "true") {
+        response.json({'result' : {'word_original': word.translation, 'word_id' : word.id, 'word_translation' : word.original   }});
+      } else {
+        response.json({'result' : {'word_original': word.original, 'word_id' : word.id, 'word_translation' : word.translation   }});
+      }
     
     } catch(err) {
       // Error handling

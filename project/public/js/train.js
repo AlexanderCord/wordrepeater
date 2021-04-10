@@ -68,6 +68,7 @@ $(document).ready(function() {
 	    var training_mode = args['training_mode'];
 	    var train_result = args['train_result'];
         message_box = $('#message');
+        var training_method_original = $('#training-method-original').is(':checked');
         
         console.log(' word word_id ' + word_id + ' result ' + train_result);
 
@@ -75,7 +76,8 @@ $(document).ready(function() {
             url: '/train/'+training_mode,
             data: {
                 'word_id': word_id,
-                'train_result': train_result
+                'train_result': train_result,
+                'method_original': training_method_original
             },
             dataType: 'json',
             success: function(data) {
@@ -85,8 +87,8 @@ $(document).ready(function() {
                     $('#word-original').text(data.result.word_original);
                     $('#word-translation').attr('word-translation', data.result.word_translation);
                     $('.btn-train').each(function() {
-                	btn = $(this);
-                	btn.attr('word-id', data.result.word_id);
+                	    btn = $(this);
+                	    btn.attr('word-id', data.result.word_id);
                     });
                     loadWordStats(data.result.word_id);
                     //message_box.text('Next word');
@@ -160,7 +162,15 @@ $(document).ready(function() {
         $.cookie('training-answer', $(this).is(':checked'), {expires: 30}); // Save cookie
     });
 
-            
+
+    var training_method_original = $.cookie('training-method-original'); // Retrieve cookie value
+    if(training_method_original != null) {
+        $('#training-method-original').prop('checked', training_method_original === "true" ? true : false ); // Check matching button
+    }      
+    $('input[name="training-method-original"]').click(function() {
+        $.cookie('training-method-original', $(this).is(':checked'), {expires: 30}); // Save cookie
+    });    
+
 
     window.setTimeout(function() {
       $('.btn-train[train-result=skip]').click();
