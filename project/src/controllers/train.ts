@@ -7,7 +7,8 @@ import {Vocabulary, TrainLog} from '../models/database';
 
 import IVocabulary from '../models/ivocabulary';
 import ITrainLog from '../models/itrainlog';
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
+import moment from 'moment';
 
 var ObjectId = require('mongodb').ObjectID;
 
@@ -98,16 +99,34 @@ class TrainController implements IController{
 
   // Default training mode - Words that you've scored with 90% or less
   private defaultTraining = async (req: Request, response: Response): Promise<void> => {
-    console.log( req.query.word_id + '=' + req.query.train_result );  
+    console.log( req.query.word_id + '=' + req.query.train_result + '; ' + req.query.filter_date_from + ' - ' + req.query.filter_date_to);  
     try {
 
       await this.saveTrainResult(response, req.query.word_id, req.query.train_result);
+
+      let filter_date_from: any = req.query.date_from;
+      let filter_date_to: any = req.query.date_to;
+      let date_from = moment(filter_date_from, "YYYY-MM-DD").toDate();
+      let date_to = moment(filter_date_to, "YYYY-MM-DD").toDate();
+      console.log(date_from);
+      console.log(date_to);
 
       let train_method_original: any = req.query.method_original;
 
       let train_stats : {word_id: any, success_rate: Number}[] = [];
       let stat_count = 0;
       let res = await TrainLog.aggregate([
+        {
+          $match: {
+            'added': { 
+              $gte: date_from, 
+              $lte: date_to
+             }
+  
+          }
+  
+        },         
+
       {
         $group: {
           "_id": {
@@ -144,6 +163,7 @@ class TrainController implements IController{
         },
       },
 
+
       {
         $project : {
           _id : "$_id",
@@ -154,7 +174,7 @@ class TrainController implements IController{
       },
       {
         $match: {
-          ratio: { '$lte': 0.9 }
+          ratio: { '$lte': 0.9 },
         }
       },
       
@@ -162,6 +182,7 @@ class TrainController implements IController{
         $sort: {"ratio": 1 }
       },
       ]).exec();
+      
     
       if(res.length > 0) {
         for(let i=0; i<res.length; i++) {
@@ -173,6 +194,9 @@ class TrainController implements IController{
           }
           
         }
+      } else{
+        
+        throw new Error('No words found');
       }
 
       // @todo refactor callbacks
@@ -196,8 +220,9 @@ class TrainController implements IController{
       }
 
     } catch(err) {
+      console.log(err)
       // Error handling
-      response.render('error', {error:err});
+      response.json({'error': err.message});
     }
 
   }
@@ -372,14 +397,39 @@ class TrainController implements IController{
     try{ 
       console.log( req.query.word_id  );  
       console.log('Train stats for one word');  
+
+      let filter_date_from: any = req.query.date_from;
+      let filter_date_to: any = req.query.date_to;
+      var lookupClause = {
+        $match: {
+          word_id: ObjectId(req.query.word_id),          
+        }
+        
+      };
+      var lookupFilter: any = false;
+      if(filter_date_from && filter_date_to) {
+        let date_from = moment(filter_date_from, "YYYY-MM-DD").toDate();
+        let date_to = moment(filter_date_to, "YYYY-MM-DD").toDate();
+        console.log(date_from);
+        console.log(date_to);
+        lookupFilter = {
+          $match: {
+            word_id: ObjectId(req.query.word_id),
+            added: { 
+              $gte: date_from, 
+              $lte: date_to
+            }
+          }
+          
+        };
+      } 
+      if(lookupFilter) {
+        lookupClause = lookupFilter;
+      }
       let train_stats = [];
       let stat_count = 0;
-      let res = await TrainLog.aggregate([
-      {
-        $match: {
-          word_id: ObjectId(req.query.word_id)
-        }
-      },
+      var statQuery = [
+      lookupClause,
       {
         $group: {
           "_id": {
@@ -425,8 +475,9 @@ class TrainController implements IController{
             $divide : [ "$train_result_yes", { $add: [ "$train_result_yes", "$train_result_no" ] } ]
           } 
         } 
-      },
-      ]).exec();
+      }];
+      console.log(statQuery);
+      let res = await TrainLog.aggregate(statQuery).exec();
     
       response.json({'result' : { 'train_stats': res  }});
 

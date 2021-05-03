@@ -64,11 +64,13 @@ $(document).ready(function() {
 
     function sendTrainResult(args) {
         console.log(args);
-	    var word_id = args['word_id'];
-	    var training_mode = args['training_mode'];
-	    var train_result = args['train_result'];
+	    let word_id = args['word_id'];
+	    let training_mode = args['training_mode'];
+	    let train_result = args['train_result'];
         message_box = $('#message');
-        var training_method_original = $('#training-method-original').is(':checked');
+        let training_method_original = $('#training-method-original').is(':checked');
+        let date_from = $('#filter-date-from').val();
+        let date_to = $('#filter-date-to').val();
         
         console.log(' word word_id ' + word_id + ' result ' + train_result);
 
@@ -77,7 +79,9 @@ $(document).ready(function() {
             data: {
                 'word_id': word_id,
                 'train_result': train_result,
-                'method_original': training_method_original
+                'method_original': training_method_original,
+                'date_from':  date_from,
+                'date_to': date_to, 
             },
             dataType: 'json',
             success: function(data) {
@@ -95,8 +99,10 @@ $(document).ready(function() {
 
 
                 } else {
-                    console.log("Error has occured during request");
-                    message_box.text('Error has occured during request');
+                    errorText = data.error ? data.error : ""
+                    errorMessage = "Error has occured during request " + (errorText ? ": " + errorText : "");
+                    console.log(errorMessage);
+                    message_box.text(errorMessage);
                     message_box.fadeIn('slow', function() {
                         message_box.delay(5000).fadeOut();
                     });
@@ -110,10 +116,14 @@ $(document).ready(function() {
     
     function loadWordStats(word_id) {
         console.log(word_id);
+        let date_from = $('#filter-date-from').val();
+        let date_to = $('#filter-date-to').val();
         $.ajax({
             url: '/train/stats',
             data: {
                 'word_id': word_id,
+                'date_from': date_from,
+                'date_to': date_to,                 
             },
             dataType: 'json',
             success: function(data) {
@@ -175,6 +185,18 @@ $(document).ready(function() {
     window.setTimeout(function() {
       $('.btn-train[train-result=skip]').click();
     }, 100);
+
+    $("#filter-date-from").datepicker({
+        dateFormat: 'yy-mm-dd',
+            firstDay: 1,                
+        }).datepicker("setDate", new Date(new Date().getTime()-1000*60*60*24*30));
+
+    $("#filter-date-to").datepicker({
+        dateFormat: 'yy-mm-dd',
+            firstDay: 1,                
+        }).datepicker("setDate", new Date());
+
+
 
 });
 

@@ -143,7 +143,9 @@ describe('Testing training modes', function() {
         .set('Auth', config.auth.client_secret)
         .query({
           word_id: '',
-          train_result: 'skip'
+          train_result: 'skip',
+          date_from: new Date(new Date().getTime() - 1000*60*60*24*30).toISOString().split('T')[0],
+          date_to: new Date().toISOString().split('T')[0]
         });
       let html = response.res.text;
       //console.log(html);
