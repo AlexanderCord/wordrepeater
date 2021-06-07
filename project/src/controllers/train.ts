@@ -327,7 +327,7 @@ class TrainController implements IController{
   */
   private logPage = async (req: Request, response: Response): Promise<void> => {
     try {
-      let log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
+      let log = await TrainLog.find().populate('word_id').sort({added: -1}).limit(100).exec();
       
       const util = require('util');
       console.log(util.inspect(log, false, null));
@@ -379,7 +379,7 @@ class TrainController implements IController{
   private allLog = async (req: Request, response: Response): Promise<void> => {
     
     try {
-      let log = await TrainLog.find().populate('word_id').sort({added: -1}).exec();
+      let log = await TrainLog.find().populate('word_id').sort({added: -1}).limit(100).exec();
       const util = require('util');
       console.log(util.inspect(log, false, null));
       response.json({
