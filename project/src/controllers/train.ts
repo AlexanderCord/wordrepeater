@@ -54,11 +54,160 @@ class TrainController implements IController{
     this.router.get('/stats', this.wordStats);
 
     this.router.get('/log/days_trained', this.daysTrained);
+
+    this.router.get('/statistics', this.statistics);
     
     //this.router.get('/log/data/days_trained_no', this.daysTrainedNo);
         
   }
+
   
+  // @todo refactor to model
+  private getStatisticQuery = (ratioSort: number) => {
+        /*  let date_from = moment(filter_date_from, "YYYY-MM-DD").toDate();
+      let date_to = moment(filter_date_to, "YYYY-MM-DD").toDate();
+      console.log(date_from);
+      console.log(date_to);*/
+    return [
+      
+      /* {
+         $match: {
+           'added': { 
+             $gte: date_from, 
+             $lte: date_to
+            }
+ 
+         }
+ 
+       },         */
+
+     {
+       $group: {
+         "_id": {
+           "word_id": "$word_id"
+         },
+         train_result_yes: {
+           $sum: {
+             $cond: {
+               if: {
+                 $eq: [
+                   "$train_result",
+                   true
+                 ]
+               },
+               then: 1,
+               else: 0
+             }
+           }
+         },
+         train_result_no: {
+           $sum: {
+             $cond: {
+               if: {
+                 $eq: [
+                   "$train_result",
+                   false
+                 ]
+               },
+               then: 1,
+               else: 0
+             }
+           }
+         }
+       },
+     },
+
+
+     {
+       $project : {
+         _id : "$_id",
+         ratio : {
+           $divide : [ "$train_result_yes", { $add: [ "$train_result_yes", "$train_result_no" ] } ]
+         },
+         total_trained : {
+           $add: [ "$train_result_yes", "$train_result_no" ] 
+         },
+         "train_result_yes" : "$train_result_yes",
+         "train_result_no" : "$train_result_no",
+       } 
+     },      
+     
+     {
+       $sort: {"ratio": ratioSort, "total_trained": -1 }
+     },
+     {
+      $match: {
+        ratio: { '$gt': 0 },
+      }
+    },
+    ];
+
+  }
+
+  private statistics = async (req: Request, response: Response): Promise<void> => {
+    try { 
+      // @todo - reafctoring - move train stats method to separate model
+      
+      let trainStatBest = await TrainLog.aggregate(this.getStatisticQuery(-1)).limit(100).exec();
+      let trainStatWorst = await TrainLog.aggregate(this.getStatisticQuery(1)).limit(100).exec();
+      /*console.log("top best memorized");
+      console.log(resBest);
+      console.log("top worst memorized");
+      console.log(resWorst);*/
+    
+      let worstIDs = [];
+      let bestIDs = []
+      if(trainStatBest.length > 0) {
+        for(let i=0; i<trainStatBest.length; i++) {
+          trainStatBest[i].success_rate = Math.round(trainStatBest[i].ratio * 100)
+          bestIDs[bestIDs.length] = trainStatBest[i]._id.word_id;
+        }
+      } else{
+        
+        throw new Error('No trained words found');
+      }
+
+      if(trainStatWorst.length > 0) {
+        for(let i=0; i<trainStatWorst.length; i++) {
+          trainStatWorst[i].success_rate = Math.round(trainStatWorst[i].ratio * 100)
+          worstIDs[worstIDs.length] = trainStatWorst[i]._id.word_id;
+        }
+      } else{
+        
+        throw new Error('No trained words found');
+      }
+    
+    
+      //console.log(train_stats);
+      
+      let bestWords = await Vocabulary.find({_id: bestIDs}).exec();
+      let worstWords = await Vocabulary.find({_id: worstIDs}).exec();
+      let bestWordsAssoc: { [key: string]: IVocabulary & mongoose.Document } = {};
+      let worstWordsAssoc: { [key: string]: IVocabulary & mongoose.Document } = {};
+
+      if(bestWords.length > 0) {
+        for(let i=0; i<bestWords.length; i++) {
+          bestWordsAssoc[ bestWords[i].id ] = bestWords[i];
+        }
+      }
+      if(worstWords.length > 0) {
+        for(let i=0; i<worstWords.length; i++) {
+          worstWordsAssoc[ worstWords[i].id ] = worstWords[i];
+        }
+      }     
+      console.log(worstWordsAssoc);
+      console.log(trainStatWorst);
+      response.render(
+        'statistics',
+        {title : 'Statistics', bestWords : bestWordsAssoc, worstWords: worstWordsAssoc, trainStatBest: trainStatBest, trainStatWorst: trainStatWorst }
+      );
+    
+    } catch(err) {
+      // Error handling
+      response.render('error', {error:err});
+    }
+  }
+
   /*
   ******************
   Train UI

@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% block title %}{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+    {% include 'header.html' %}  
+    <p><a href="/">Home</a></p>
+
+    <br>
+    
+    <h4>Statistics</h4>
+
+    <br><br>
+    <h5>Top 100 best memorized words</h5>
+    <ol id="word-list">
+    {% for trainResult in trainStatBest %}
+      <li>
+      <b></b>{{bestWords[trainResult._id.word_id].original}}</b>{% if bestWords[trainResult._id.word_id].translation %} - {{bestWords[trainResult._id.word_id].translation}}{% endif %}
+      {%if trainResult.ratio%} <span class="badge {% if trainResult.success_rate > 90 %}badge-success{% else %}badge-warning{% endif %}">
+        {{trainResult.success_rate}}% (Yes: {{trainResult.train_result_yes}} / No: {{trainResult.train_result_no}})</span> 
+      {% else %}
+      <span class="badge badge-secondary">Haven't trained</span>
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ol>
+    <br></br>
+    <h5>Top 100 worst memorized words</h5>
+    <ol id="word-list">
+    {% for trainResult in trainStatWorst %}
+      <li>
+      <b></b>{{worstWords[trainResult._id.word_id].original}}</b>{% if worstWords[trainResult._id.word_id].translation %} - {{worstWords[trainResult._id.word_id].translation}}{% endif %}
+      {%if trainResult.ratio%} <span class="badge {% if trainResult.success_rate > 90 %}badge-success{% else %}badge-warning{% endif %}">
+        {{trainResult.success_rate}}% (Yes: {{trainResult.train_result_yes}} / No: {{trainResult.train_result_no}})</span> 
+      {% else %}
+      <span class="badge badge-secondary">Haven't trained</span>
+      {% endif %}
+      </li>
+    {% endfor %}
+    </ol>
+
+  </div>
+
+{% endblock %}
+
