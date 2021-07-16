@@ -63,23 +63,22 @@ class TrainController implements IController{
 
   
   // @todo refactor to model
-  private getStatisticQuery = (ratioSort: number) => {
-        /*  let date_from = moment(filter_date_from, "YYYY-MM-DD").toDate();
-      let date_to = moment(filter_date_to, "YYYY-MM-DD").toDate();
-      console.log(date_from);
-      console.log(date_to);*/
+  private getStatisticQuery = (ratioSort: number, filter_date_from: Date, filter_date_to: Date ) => {
+    
+    console.log(filter_date_from);
+    console.log(filter_date_to);
     return [
       
-      /* {
+      {
          $match: {
            'added': { 
-             $gte: date_from, 
-             $lte: date_to
+             $gte: filter_date_from, 
+             $lte: filter_date_to
             }
  
          }
  
-       },         */
+       },         
 
      {
        $group: {
@@ -148,8 +147,25 @@ class TrainController implements IController{
     try { 
       // @todo - reafctoring - move train stats method to separate model
       
-      let trainStatBest = await TrainLog.aggregate(this.getStatisticQuery(-1)).limit(100).exec();
-      let trainStatWorst = await TrainLog.aggregate(this.getStatisticQuery(1)).limit(100).exec();
+      let filter_date_from: any = req.query.date_from;
+      let filter_date_to: any = req.query.date_to;
+      if(!filter_date_from) {
+        filter_date_from = moment().subtract(30, 'days').toDate();
+      } else {
+        filter_date_from = moment(filter_date_from, "YYYY-MM-DD").toDate();
+      }
+      //let date_from = moment(filter_date_from, "YYYY-MM-DD").toDate();
+      //let date_to = moment(filter_date_to, "YYYY-MM-DD").toDate();
+
+      if(!filter_date_to) {
+        filter_date_to = moment().toDate();
+      } else {
+        filter_date_to = moment(filter_date_to, "YYYY-MM-DD").toDate();
+
+      }
+
+      let trainStatBest = await TrainLog.aggregate(this.getStatisticQuery(-1, filter_date_from, filter_date_to)).limit(100).exec();
+      let trainStatWorst = await TrainLog.aggregate(this.getStatisticQuery(1, filter_date_from, filter_date_to)).limit(100).exec();
       /*console.log("top best memorized");
       console.log(resBest);
       console.log("top worst memorized");
@@ -195,11 +211,12 @@ class TrainController implements IController{
           worstWordsAssoc[ worstWords[i].id ] = worstWords[i];
         }
       }     
-      console.log(worstWordsAssoc);
-      console.log(trainStatWorst);
+
       response.render(
         'statistics',
-        {title : 'Statistics', bestWords : bestWordsAssoc, worstWords: worstWordsAssoc, trainStatBest: trainStatBest, trainStatWorst: trainStatWorst }
+        {title : 'Statistics', bestWords : bestWordsAssoc, worstWords: worstWordsAssoc, trainStatBest: trainStatBest, trainStatWorst: trainStatWorst,
+      'filter_date_from': moment(filter_date_from).format('YYYY-MM-DD').toString(), 
+      'filter_date_to': moment(filter_date_to).format('YYYY-MM-DD').toString() }
       );
     
     } catch(err) {

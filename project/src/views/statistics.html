@@ -12,6 +12,22 @@
     
     <h4>Statistics</h4>
 
+    <div class="form-check">
+      Training period: 
+      <form method="get">
+        <input type="text" id="filter-date-from" name="date_from" value="{{filter_date_from}}" autocomplete="off"> <input type="text" id="filter-date-to" name="date_to" value="{{filter_date_to}}" autocomplete="off">
+        <input type="submit" value="Filter"> <a href="?">Reset</a>
+      </form>
+    </div>
+
+
+    
+    
+    
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
     <br><br>
     <h5>Top 100 best memorized words</h5>
     <ol id="word-list">
@@ -41,6 +57,7 @@
     {% endfor %}
     </ol>
 
+    <script type="text/javascript" src="/js/statistics.js"></script>
   </div>
 
 {% endblock %}
