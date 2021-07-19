@@ -1,20 +1,20 @@
-import * as express from 'express';
-import IController from './icontroller';
+import * as express from "express";
+import IController from "./icontroller";
 
-import { Response, Request } from 'express';
+import { Response, Request } from "express";
 // mongoose config
-import {Vocabulary, TrainLog} from '../models/database';
+import {Vocabulary, TrainLog} from "../models/database";
 
-import IVocabulary from '../models/ivocabulary';
-import ITrainLog from '../models/itrainlog';
-import mongoose, { Mongoose } from 'mongoose';
-import moment from 'moment';
+import IVocabulary from "../models/ivocabulary";
+import ITrainLog from "../models/itrainlog";
+import mongoose, { Mongoose } from "mongoose";
+import moment from "moment";
 
-var ObjectId = require('mongodb').ObjectID;
+var ObjectId = require("mongodb").ObjectID;
 
 
 class TrainController implements IController{
-  public path = '/train';
+  public path = "/train";
   public router = express.Router();
  
   constructor() {
@@ -22,21 +22,21 @@ class TrainController implements IController{
   }
  
   public intializeRoutes() {
-    this.router.get('/start', this.startTraining);
+    this.router.get("/start", this.startTraining);
 
-    // Default training mode - Words that you've scored with 90% or less
-    this.router.get('/default', this.defaultTraining);
+    // Default training mode - Words that you"ve scored with 90% or less
+    this.router.get("/default", this.defaultTraining);
     
     
     
     // Training mode NEW - New words (zero score)
-    // @todo update word's score in a cache table to avoid memory overload, or using Mongo's lookup
+    // @todo update word"s score in a cache table to avoid memory overload, or using Mongo"s lookup
     // @todo JSON errors render in JSON format => client-side update
-    this.router.get('/new', this.newWordsTraining);
+    this.router.get("/new", this.newWordsTraining);
     
     
     // Training mode all - All words (random order)
-    this.router.get('/all', this.allWordsTraining);
+    this.router.get("/all", this.allWordsTraining);
     
     
     /*
@@ -44,18 +44,18 @@ class TrainController implements IController{
     Log UI
     ******************
     */
-    this.router.get('/log', this.logPage);
+    this.router.get("/log", this.logPage);
     
     
-    this.router.get('/log/filter', this.logFilter);
+    this.router.get("/log/filter", this.logFilter);
     
-    this.router.get('/log/all', this.allLog);    
+    this.router.get("/log/all", this.allLog);    
     
-    this.router.get('/stats', this.wordStats);
+    this.router.get("/stats", this.wordStats);
 
-    this.router.get('/log/days_trained', this.daysTrained);
+    this.router.get("/log/days_trained", this.daysTrained);
 
-    this.router.get('/statistics', this.statistics);
+    this.router.get("/statistics", this.statistics);
     
     //this.router.get('/log/data/days_trained_no', this.daysTrainedNo);
         
