@@ -116,7 +116,7 @@ class App {
   public listen() {
     this.server = this.http.createServer(this.app);
 
-    this.server.listen(this.port);
+    this.server.listen(this.port, '127.0.0.1');
     this.server.on("error", this.onError);
     this.server.on("listening", () => {
       console.log("Listening on " + this.port)
